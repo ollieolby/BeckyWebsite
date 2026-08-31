@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import OpenAI, { toFile } from 'openai';
 import { requireUser } from '@/lib/supabase/server';
+import { apiError } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
+// Streaming a 50 MB manual out of Supabase and into OpenAI can exceed the
+// default function duration, so ask Vercel for the longer limit.
+export const maxDuration = 60;
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -31,7 +35,6 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     if (updateError) throw updateError;
     return NextResponse.json({ indexing: true });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unable to index the manual.';
-    return NextResponse.json({ error: message }, { status: message === 'UNAUTHENTICATED' ? 401 : 500 });
+    return apiError(error, 'Unable to index the manual.');
   }
 }

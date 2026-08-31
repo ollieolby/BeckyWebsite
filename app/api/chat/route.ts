@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { requireUser } from '@/lib/supabase/server';
 import { DEFAULT_AI_MODEL, isAllowedAiModel } from '@/lib/ai-models';
+import { apiError } from '@/lib/api-error';
 
 export async function POST(request: Request) {
   try {
@@ -22,7 +23,6 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ answer: response.output_text, model: response.model });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unable to answer.';
-    return NextResponse.json({ error: message }, { status: message === 'UNAUTHENTICATED' ? 401 : 500 });
+    return apiError(error, 'Unable to answer.');
   }
 }

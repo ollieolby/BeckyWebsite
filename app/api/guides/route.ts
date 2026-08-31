@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient, requireUser } from '@/lib/supabase/server';
+import { apiError } from '@/lib/api-error';
 
 export async function GET() {
   try {
@@ -22,5 +23,5 @@ export async function POST(request: Request) {
     }).select().single();
     if (error) throw error;
     return NextResponse.json(data, { status: 201 });
-  } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Unable to save guide.' }, { status: 500 }); }
+  } catch (error) { return apiError(error, 'Unable to save the guide.'); }
 }

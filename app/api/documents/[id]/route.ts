@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireUser } from '@/lib/supabase/server';
+import { apiError } from '@/lib/api-error';
 
 export async function PATCH(request:Request,{params}:{params:Promise<{id:string}>}){
   try {
@@ -10,6 +11,6 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
     const {data,error}=await supabase.from('documents').update(changes).eq('id',id).select().single();
     if(error)throw error; return NextResponse.json(data);
   } catch(error) {
-    return NextResponse.json({error:error instanceof Error?error.message:'Unable to update manual.'},{status:500});
+    return apiError(error,'Unable to update the manual.');
   }
 }
