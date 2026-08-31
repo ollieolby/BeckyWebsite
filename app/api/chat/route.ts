@@ -16,6 +16,7 @@ export async function POST(request: Request) {
       instructions: 'You are Becky, a careful assistant for two families sharing a houseboat, garden and runaround boat. Answer only from retrieved family documents. Cite filenames. If the answer is absent, say so clearly. Never invent safety instructions.',
       input: String(question),
       tools: [{ type: 'file_search', vector_store_ids: [process.env.OPENAI_VECTOR_STORE_ID], max_num_results: 6 }],
+      store: false,
     });
     return NextResponse.json({ answer: response.output_text });
   } catch (error) {

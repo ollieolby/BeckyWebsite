@@ -1,7 +1,9 @@
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import AdminForms from './admin-forms';
 import ContentManager from './content-manager';
+import RagStatus from './rag-status';
 
 export const dynamic='force-dynamic';
 export default async function AdminPage(){
@@ -14,5 +16,5 @@ export default async function AdminPage(){
     supabase.from('guides').select('id,title,summary,body,asset_id,is_published').order('updated_at',{ascending:false}),
   ]);
   const canEdit=profile?.role==='editor'||profile?.role==='admin';
-  return <main className="admin-page"><header><a className="brand" href="/"><span className="brand-mark">B</span><span>BECKY</span></a><div><strong>{profile?.display_name||user.email}</strong><small>{profile?.role||'viewer'}</small></div></header><section><p className="kicker">Family knowledge base</p><h1>Add something useful</h1><p>Upload a manual, save a place, or write down the knowledge that normally lives in someone’s head.</p><AdminForms assets={assets??[]} canEdit={canEdit}/>{canEdit&&<ContentManager assets={assets??[]} places={places??[]} documents={documents??[]} guides={guides??[]}/>}</section></main>;
+  return <main className="admin-page"><header><Link className="brand" href="/"><span className="brand-mark">B</span><span>BECKY</span></Link><div><strong>{profile?.display_name||user.email}</strong><small>{profile?.role||'viewer'}</small></div></header><section><p className="kicker">Family knowledge base</p><h1>Add something useful</h1><p>Upload a manual, save a place, or write down the knowledge that normally lives in someone’s head.</p>{canEdit&&<RagStatus/>}<AdminForms assets={assets??[]} canEdit={canEdit}/>{canEdit&&<ContentManager assets={assets??[]} places={places??[]} documents={documents??[]} guides={guides??[]}/>}</section></main>;
 }

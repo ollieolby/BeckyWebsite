@@ -25,8 +25,12 @@ export async function POST(request: Request) {
       try {
         const openai = new OpenAI();
         const uploaded = await openai.files.create({ file: await toFile(Buffer.from(bytes), file.name, { type: file.type }), purpose: 'assistants' });
-        await openai.vectorStores.files.create(process.env.OPENAI_VECTOR_STORE_ID, { file_id: uploaded.id, attributes: { asset_id: assetId ?? 'general', title } });
-        openaiFileId = uploaded.id; indexStatus = 'indexed';
+        const indexed = await openai.vectorStores.files.createAndPoll(process.env.OPENAI_VECTOR_STORE_ID, {
+          file_id: uploaded.id,
+          attributes: { asset_id: assetId ?? 'general', title },
+        });
+        openaiFileId = uploaded.id;
+        indexStatus = indexed.status === 'completed' ? 'indexed' : 'failed';
       } catch { indexStatus = 'failed'; }
     }
     const { data, error } = await supabase.from('documents').insert({
