@@ -1,5 +1,6 @@
 import AskBecky from './ask-becky';
 import PlacesMap from './places-map';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 const sections = [
   { name: 'Becky', eyebrow: 'Houseboat', text: 'Systems, safety, arrival and departure guides for life aboard.', accent: 'becky', icon: 'B' },
@@ -13,13 +14,19 @@ const quickLinks = [
   ['Mooring map', 'Saved spots, notes and local knowledge', '↗'],
 ];
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = user
+    ? await supabase.from('profiles').select('display_name').eq('id', user.id).single()
+    : { data: null };
+  const signedInName = profile?.display_name?.trim() || user?.email?.split('@')[0] || null;
   return (
     <main>
       <header className="site-header">
         <a className="brand" href="#top" aria-label="Becky home"><span className="brand-mark">B</span><span>BECKY</span></a>
         <nav aria-label="Main navigation"><a href="#vessels">The boats</a><a href="#explore">Explore</a><a href="#add-information">Add information</a></nav>
-        <a className="ask-small" href="/admin">Family area <span>✦</span></a>
+        <a className="ask-small" href="/admin">{signedInName ? `Hi, ${signedInName}` : 'Family area'} <span>✦</span></a>
       </header>
 
       <section className="hero" id="top">
