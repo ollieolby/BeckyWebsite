@@ -23,15 +23,13 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       file: await toFile(Buffer.from(await blob.arrayBuffer()), filename, { type: document.mime_type }),
       purpose: 'assistants',
     });
-    const indexed = await openai.vectorStores.files.createAndPoll(process.env.OPENAI_VECTOR_STORE_ID, {
+    await openai.vectorStores.files.create(process.env.OPENAI_VECTOR_STORE_ID, {
       file_id: uploaded.id,
       attributes: { asset_id: document.asset_id ?? 'general', title: document.title },
     });
-    const indexStatus = indexed.status === 'completed' ? 'indexed' : 'failed';
-    const { error: updateError } = await supabase.from('documents').update({ openai_file_id: uploaded.id, index_status: indexStatus }).eq('id', id);
+    const { error: updateError } = await supabase.from('documents').update({ openai_file_id: uploaded.id, index_status: 'pending' }).eq('id', id);
     if (updateError) throw updateError;
-    if (indexStatus !== 'indexed') return NextResponse.json({ error: `OpenAI returned ${indexed.status}.` }, { status: 502 });
-    return NextResponse.json({ indexed: true });
+    return NextResponse.json({ indexing: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unable to index the manual.';
     return NextResponse.json({ error: message }, { status: message === 'UNAUTHENTICATED' ? 401 : 500 });

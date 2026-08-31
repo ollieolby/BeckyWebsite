@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import OpenAI, { toFile } from 'openai';
 import { requireUser } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
@@ -20,22 +19,9 @@ export async function POST(request: Request) {
     const { error: uploadError } = await supabase.storage.from('manuals').upload(path, bytes, { contentType: file.type, upsert: false });
     if (uploadError) throw uploadError;
 
-    let openaiFileId: string | null = null, indexStatus = 'pending';
-    if (process.env.OPENAI_API_KEY && process.env.OPENAI_VECTOR_STORE_ID) {
-      try {
-        const openai = new OpenAI();
-        const uploaded = await openai.files.create({ file: await toFile(Buffer.from(bytes), file.name, { type: file.type }), purpose: 'assistants' });
-        const indexed = await openai.vectorStores.files.createAndPoll(process.env.OPENAI_VECTOR_STORE_ID, {
-          file_id: uploaded.id,
-          attributes: { asset_id: assetId ?? 'general', title },
-        });
-        openaiFileId = uploaded.id;
-        indexStatus = indexed.status === 'completed' ? 'indexed' : 'failed';
-      } catch { indexStatus = 'failed'; }
-    }
     const { data, error } = await supabase.from('documents').insert({
       title, asset_id: assetId, storage_path: path, mime_type: file.type || 'application/octet-stream',
-      size_bytes: file.size, openai_file_id: openaiFileId, index_status: indexStatus,
+      size_bytes: file.size, openai_file_id: null, index_status: 'pending',
       is_published: form.get('is_published') === 'on', uploaded_by: user.id,
     }).select().single();
     if (error) throw error;

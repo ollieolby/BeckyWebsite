@@ -6,11 +6,21 @@ export const runtime = 'nodejs';
 
 export async function GET() {
   try {
-    await requireUser();
+    const { supabase } = await requireUser();
     if (!process.env.OPENAI_API_KEY || !process.env.OPENAI_VECTOR_STORE_ID) {
       return NextResponse.json({ connected: false, message: 'OpenAI has not been configured in Vercel yet.' });
     }
-    const store = await new OpenAI().vectorStores.retrieve(process.env.OPENAI_VECTOR_STORE_ID);
+    const openai = new OpenAI();
+    const store = await openai.vectorStores.retrieve(process.env.OPENAI_VECTOR_STORE_ID);
+    const { data: pending } = await supabase.from('documents').select('id,openai_file_id').eq('index_status', 'pending').not('openai_file_id', 'is', null);
+    await Promise.all((pending ?? []).map(async document => {
+      try {
+        const file = await openai.vectorStores.files.retrieve(process.env.OPENAI_VECTOR_STORE_ID!, document.openai_file_id!);
+        if (file.status === 'completed' || file.status === 'failed') {
+          await supabase.from('documents').update({ index_status: file.status === 'completed' ? 'indexed' : 'failed' }).eq('id', document.id);
+        }
+      } catch { /* A later status check can retry reconciliation. */ }
+    }));
     return NextResponse.json({
       connected: store.status === 'completed',
       status: store.status,
