@@ -17,7 +17,7 @@ export default function Home() {
     <main>
       <header className="site-header">
         <a className="brand" href="#top" aria-label="Becky home"><span className="brand-mark">B</span><span>BECKY</span></a>
-        <nav aria-label="Main navigation"><a href="#vessels">The boats</a><a href="#explore">Explore</a><a href="#manuals">Manuals</a></nav>
+        <nav aria-label="Main navigation"><a href="#vessels">The boats</a><a href="#explore">Explore</a><a href="#add-information">Add information</a></nav>
         <a className="ask-small" href="/admin">Family area <span>✦</span></a>
       </header>
 
@@ -50,6 +50,20 @@ export default function Home() {
           {quickLinks.map(([title, description, arrow]) => (
             <a href="/admin" key={title}><span className="quick-icon">{title.charAt(0)}</span><span><strong>{title}</strong><small>{description}</small></span><b>{arrow}</b></a>
           ))}
+        </div>
+      </section>
+
+      <section className="add-information" id="add-information">
+        <div className="add-information-copy">
+          <p className="kicker">Keep our knowledge growing</p>
+          <h2>Add something useful</h2>
+          <p>Found a good mooring? Learnt how something aboard works? Upload it while it’s fresh, so both families can find it next time.</p>
+          <a className="add-primary" href="/admin">Add information <span>→</span></a>
+        </div>
+        <div className="add-options">
+          <a href="/admin"><span>01</span><strong>Upload a manual</strong><small>Add a PDF or practical document</small><b>→</b></a>
+          <a href="/admin"><span>02</span><strong>Save a place</strong><small>Paste a Maps link and add our notes</small><b>→</b></a>
+          <a href="/admin"><span>03</span><strong>Share a useful note</strong><small>Capture family knowledge and checklists</small><b>→</b></a>
         </div>
       </section>
 
