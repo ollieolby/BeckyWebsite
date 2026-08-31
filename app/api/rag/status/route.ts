@@ -1,21 +1,23 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { requireUser } from '@/lib/supabase/server';
+import { openAiVectorStoreId } from '@/lib/env';
 
 export const runtime = 'nodejs';
 
 export async function GET() {
   try {
     const { supabase } = await requireUser();
-    if (!process.env.OPENAI_API_KEY || !process.env.OPENAI_VECTOR_STORE_ID) {
+    const vectorStoreId = openAiVectorStoreId();
+    if (!process.env.OPENAI_API_KEY || !vectorStoreId) {
       return NextResponse.json({ connected: false, message: 'OpenAI has not been configured in Vercel yet.' });
     }
     const openai = new OpenAI();
-    const store = await openai.vectorStores.retrieve(process.env.OPENAI_VECTOR_STORE_ID);
+    const store = await openai.vectorStores.retrieve(vectorStoreId);
     const { data: pending } = await supabase.from('documents').select('id,openai_file_id').eq('index_status', 'pending').not('openai_file_id', 'is', null);
     await Promise.all((pending ?? []).map(async document => {
       try {
-        const file = await openai.vectorStores.files.retrieve(process.env.OPENAI_VECTOR_STORE_ID!, document.openai_file_id!);
+        const file = await openai.vectorStores.files.retrieve(vectorStoreId, document.openai_file_id!);
         if (file.status === 'completed' || file.status === 'failed') {
           await supabase.from('documents').update({ index_status: file.status === 'completed' ? 'indexed' : 'failed' }).eq('id', document.id);
         }
