@@ -20,7 +20,26 @@ The finished site will give both families:
 - **Assets:** Becky, Cormorant, or Drakar, used to organise and filter content.
 - **AI sources:** documents and published guides indexed for retrieval, tagged by asset and content type.
 
-Structured records will use the site's database; uploaded manuals and images will use object storage. The AI layer will use OpenAI vector-store retrieval so answers can quote the relevant source and link back to it.
+Structured records use Supabase Postgres; uploaded manuals use private Supabase Storage. The AI layer uses OpenAI vector-store retrieval so answers can cite the relevant source.
+
+## Backend setup
+
+1. Create a free Supabase project.
+2. Run `supabase/migrations/001_initial.sql` in its SQL Editor.
+3. Copy `.env.example` to `.env.local` and add the Supabase URL, publishable key, and server-only service key.
+4. Sign in once at `/login`, then promote the first account in the Supabase SQL Editor:
+
+```sql
+update public.profiles set role = 'admin' where email = 'YOUR_EMAIL';
+```
+
+5. Create an OpenAI vector store and add `OPENAI_API_KEY` and `OPENAI_VECTOR_STORE_ID` to `.env.local`. Without these two values, the rest of the site works and document uploads remain marked as pending.
+
+The backend exposes authenticated routes for places, guides, document uploads, and Ask Becky. Manual files are private, editors can change content, and ordinary family members have read-only access.
+
+## Vercel deployment
+
+Import the GitHub repository into Vercel, add the same environment variables, and deploy. Configure the Supabase authentication Site URL as the Vercel production URL and add `https://becky.ollieolby.co.uk/auth/callback` to its redirect allowlist. Add `becky.ollieolby.co.uk` as the custom domain in Vercel, then apply the DNS record Vercel provides.
 
 ## Local development
 
