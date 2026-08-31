@@ -12,7 +12,7 @@ export default async function AdminPage(){
     supabase.from('profiles').select('display_name,email,role').eq('id',user.id).single(),
     supabase.from('assets').select('id,name,slug').order('name'),
     supabase.from('places').select('*').order('updated_at',{ascending:false}),
-    supabase.from('documents').select('id,title,asset_id,index_status,is_published').order('created_at',{ascending:false}),
+    supabase.from('documents').select('id,title,notes,asset_id,index_status,is_published').order('created_at',{ascending:false}),
     supabase.from('guides').select('id,title,summary,body,asset_id,is_published').order('updated_at',{ascending:false}),
   ]);
   const canEdit=profile?.role==='editor'||profile?.role==='admin';
