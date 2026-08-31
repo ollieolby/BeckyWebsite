@@ -1,0 +1,1 @@
+.ask-answer{width:min(680px,92vw);margin:16px auto 0;padding:15px 18px;border-left:3px solid var(--rust);background:#fff;text-align:left;font:15px/1.5 Georgia,serif;position:relative;z-index:2}.ask-answer a{color:var(--rust);font-weight:700;text-decoration:underline}.ask-box button:disabled{opacity:.65;cursor:wait}
