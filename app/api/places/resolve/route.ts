@@ -23,8 +23,10 @@ export async function POST(request: Request) {
     const at = decoded.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
     const markers = decoded.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
     const place = resolved.pathname.match(/\/maps\/place\/([^/]+)/) || resolved.pathname.match(/\/place\/([^/]+)/);
-    const latitude = Number(at?.[1] ?? markers?.[1]);
-    const longitude = Number(at?.[2] ?? markers?.[2]);
+    // Google place URLs often contain both the camera centre (@lat,lng) and
+    // the actual place marker (!3dlat!4dlng). Always prefer the marker.
+    const latitude = Number(markers?.[1] ?? at?.[1]);
+    const longitude = Number(markers?.[2] ?? at?.[2]);
     const name = place?.[1]?.replace(/\+/g, ' ').trim() ?? '';
 
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {

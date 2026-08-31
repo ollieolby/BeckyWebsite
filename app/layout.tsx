@@ -7,6 +7,7 @@ import './add-information.css';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './places-map.css';
 import './publishing.css';
+import './content-manager.css';
 
 export const metadata: Metadata = {
   title: 'Becky — The boat guide',
