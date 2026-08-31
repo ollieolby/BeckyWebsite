@@ -4,6 +4,8 @@ import './admin.css';
 import './ask-becky.css';
 import './login.css';
 import './add-information.css';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import './places-map.css';
 
 export const metadata: Metadata = {
   title: 'Becky — The boat guide',

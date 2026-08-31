@@ -1,4 +1,5 @@
 import AskBecky from './ask-becky';
+import PlacesMap from './places-map';
 
 const sections = [
   { name: 'Becky', eyebrow: 'Houseboat', text: 'Systems, safety, arrival and departure guides for life aboard.', accent: 'becky', icon: 'B' },
@@ -51,6 +52,14 @@ export default function Home() {
             <a href="/admin" key={title}><span className="quick-icon">{title.charAt(0)}</span><span><strong>{title}</strong><small>{description}</small></span><b>{arrow}</b></a>
           ))}
         </div>
+      </section>
+
+      <section className="map-section" id="map">
+        <div className="map-section-heading">
+          <div><p className="kicker">Our saved spots</p><h2>Explore the river map</h2></div>
+          <p>Moorings, pubs, cafés, fuel and useful stops collected by both families.</p>
+        </div>
+        <PlacesMap />
       </section>
 
       <section className="add-information" id="add-information">
