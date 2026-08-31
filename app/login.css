@@ -1,0 +1,1 @@
+.login-card button:disabled{background:#9b9186;cursor:not-allowed}.login-card [role="status"]{min-height:24px;color:var(--ink);font-size:13px;font-weight:700}

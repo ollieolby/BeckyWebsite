@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import './admin.css';
 import './ask-becky.css';
+import './login.css';
 
 export const metadata: Metadata = {
   title: 'Becky — The boat guide',
