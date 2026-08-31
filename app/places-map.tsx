@@ -12,7 +12,6 @@ export default function PlacesMap(){
     async function start(){
       const response=await fetch('/api/places');
       if(cancelled)return;
-      if(response.status===401){setMessage('Sign in to see the family map and saved places.');return}
       if(!response.ok){setMessage('The map could not be loaded just now.');return}
       const places:Place[]=await response.json();
       map=new maplibregl.Map({container:container.current!,center:[0.5,52.5],zoom:7,style:{version:8,sources:{osm:{type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,attribution:'© OpenStreetMap contributors'}},layers:[{id:'osm',type:'raster',source:'osm'}]}});
@@ -33,6 +32,5 @@ export default function PlacesMap(){
     start().catch(()=>setMessage('The map could not be loaded just now.'));
     return()=>{cancelled=true;map?.remove()};
   },[]);
-  const signIn=message.startsWith('Sign in');
-  return <div className="map-shell"><div ref={container} className="map-canvas" aria-label="Map of saved family places"/><div className={`map-message ${signIn?'map-sign-in':''}`}>{message}{signIn&&<> <a href="/login">Sign in</a></>}</div></div>;
+  return <div className="map-shell"><div ref={container} className="map-canvas" aria-label="Map of saved family places"/><div className="map-message">{message}</div></div>;
 }

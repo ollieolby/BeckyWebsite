@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
-import { requireUser } from '@/lib/supabase/server';
+import { createSupabaseServerClient, requireUser } from '@/lib/supabase/server';
 
 export async function GET() {
   try {
-    const { supabase } = await requireUser();
+    const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase.from('guides').select('*, assets(slug,name)').order('updated_at', { ascending: false });
     if (error) throw error;
     return NextResponse.json(data);
-  } catch { return NextResponse.json({ error: 'Sign in required.' }, { status: 401 }); }
+  } catch { return NextResponse.json({ error: 'Unable to load guides.' }, { status: 500 }); }
 }
 
 export async function POST(request: Request) {

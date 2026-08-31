@@ -31,7 +31,8 @@ export async function POST(request: Request) {
     }
     const { data, error } = await supabase.from('documents').insert({
       title, asset_id: assetId, storage_path: path, mime_type: file.type || 'application/octet-stream',
-      size_bytes: file.size, openai_file_id: openaiFileId, index_status: indexStatus, uploaded_by: user.id,
+      size_bytes: file.size, openai_file_id: openaiFileId, index_status: indexStatus,
+      is_published: form.get('is_published') === 'on', uploaded_by: user.id,
     }).select().single();
     if (error) throw error;
     return NextResponse.json(data, { status: 201 });

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { requireUser } from '@/lib/supabase/server';
+import { createSupabaseServerClient, requireUser } from '@/lib/supabase/server';
 
-export async function GET(){try{const{supabase}=await requireUser();const{data,error}=await supabase.from('places').select('*').order('name');if(error)throw error;return NextResponse.json(data)}catch(error){return apiError(error)}}
+export async function GET(){try{const supabase=await createSupabaseServerClient();const{data,error}=await supabase.from('places').select('*').order('name');if(error)throw error;return NextResponse.json(data)}catch(error){return apiError(error)}}
 
 export async function POST(request:Request){try{const{supabase,user}=await requireUser();const form=await request.formData();const latitude=Number(form.get('latitude')),longitude=Number(form.get('longitude'));const name=String(form.get('name')??'').trim();const category=String(form.get('category')??'');if(!name||!category||!Number.isFinite(latitude)||!Number.isFinite(longitude))return NextResponse.json({error:'Name, category and valid coordinates are required.'},{status:400});
 let imagePath:null|string=null;const image=form.get('image');if(image instanceof File&&image.size>0){if(image.size>10*1024*1024)return NextResponse.json({error:'Place photos must be 10 MB or smaller.'},{status:400});if(!['image/jpeg','image/png','image/webp','image/heic'].includes(image.type))return NextResponse.json({error:'Use a JPEG, PNG, WebP, or HEIC photograph.'},{status:400});const safe=image.name.replace(/[^a-zA-Z0-9._-]/g,'-');imagePath=`${user.id}/${crypto.randomUUID()}-${safe}`;const{error:uploadError}=await supabase.storage.from('place-images').upload(imagePath,await image.arrayBuffer(),{contentType:image.type});if(uploadError)throw uploadError}
