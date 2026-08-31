@@ -1,34 +1,10 @@
 import { NextResponse } from 'next/server';
 import { requireUser } from '@/lib/supabase/server';
 
-export async function GET() {
-  try {
-    const { supabase } = await requireUser();
-    const { data, error } = await supabase.from('places').select('*').order('name');
-    if (error) throw error;
-    return NextResponse.json(data);
-  } catch (error) { return apiError(error); }
-}
+export async function GET(){try{const{supabase}=await requireUser();const{data,error}=await supabase.from('places').select('*').order('name');if(error)throw error;return NextResponse.json(data)}catch(error){return apiError(error)}}
 
-export async function POST(request: Request) {
-  try {
-    const { supabase, user } = await requireUser();
-    const body = await request.json();
-    const latitude = Number(body.latitude), longitude = Number(body.longitude);
-    if (!body.name || !body.category || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-      return NextResponse.json({ error: 'Name, category and valid coordinates are required.' }, { status: 400 });
-    }
-    const { data, error } = await supabase.from('places').insert({
-      name: String(body.name).trim(), category: body.category, latitude, longitude,
-      notes: String(body.notes ?? ''), website_url: body.website_url || null,
-      is_published: body.is_published !== false, created_by: user.id,
-    }).select().single();
-    if (error) throw error;
-    return NextResponse.json(data, { status: 201 });
-  } catch (error) { return apiError(error); }
-}
+export async function POST(request:Request){try{const{supabase,user}=await requireUser();const form=await request.formData();const latitude=Number(form.get('latitude')),longitude=Number(form.get('longitude'));const name=String(form.get('name')??'').trim();const category=String(form.get('category')??'');if(!name||!category||!Number.isFinite(latitude)||!Number.isFinite(longitude))return NextResponse.json({error:'Name, category and valid coordinates are required.'},{status:400});
+let imagePath:null|string=null;const image=form.get('image');if(image instanceof File&&image.size>0){if(image.size>10*1024*1024)return NextResponse.json({error:'Place photos must be 10 MB or smaller.'},{status:400});if(!['image/jpeg','image/png','image/webp','image/heic'].includes(image.type))return NextResponse.json({error:'Use a JPEG, PNG, WebP, or HEIC photograph.'},{status:400});const safe=image.name.replace(/[^a-zA-Z0-9._-]/g,'-');imagePath=`${user.id}/${crypto.randomUUID()}-${safe}`;const{error:uploadError}=await supabase.storage.from('place-images').upload(imagePath,await image.arrayBuffer(),{contentType:image.type});if(uploadError)throw uploadError}
+const{data,error}=await supabase.from('places').insert({name,category,latitude,longitude,notes:String(form.get('notes')??''),website_url:String(form.get('website_url')??'')||null,google_maps_url:String(form.get('google_maps_url')??'')||null,image_path:imagePath,is_published:true,created_by:user.id}).select().single();if(error)throw error;return NextResponse.json(data,{status:201})}catch(error){return apiError(error)}}
 
-function apiError(error: unknown) {
-  const message = error instanceof Error ? error.message : 'Unexpected error';
-  return NextResponse.json({ error: message }, { status: message === 'UNAUTHENTICATED' ? 401 : 500 });
-}
+function apiError(error:unknown){const message=error instanceof Error?error.message:'Unexpected error';return NextResponse.json({error:message},{status:message==='UNAUTHENTICATED'?401:500})}
