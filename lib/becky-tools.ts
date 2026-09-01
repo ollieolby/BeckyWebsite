@@ -18,6 +18,22 @@ export const HOME_MOORING = {
 export const BECKY_TOOL_DEFINITIONS = [
   {
     type: 'function' as const,
+    name: 'estimate_drakar_fuel',
+    description: 'Estimate petrol use and reserve for Drakar, the small boat with a 15 HP Mariner outboard and 27 L tank. ALWAYS use for Drakar trip plans or fuel/range questions. Pass total engine-running time for the whole planned journey, including both directions and anticipated idling; do not include time tied up with the engine off.',
+    strict: false,
+    parameters: {
+      type: 'object',
+      properties: {
+        engine_minutes: { type: 'number', description: 'Total minutes the engine is expected to run for the complete trip.' },
+        fuel_on_board_litres: { type: 'number', description: 'Known fuel currently aboard. Defaults to a full 27 L tank.' },
+        reserve_percent: { type: 'number', description: 'Fuel to keep unused. Defaults to 20%.' },
+      },
+      required: ['engine_minutes'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'function' as const,
     name: 'list_notes',
     description: 'List the family shared-memory notes, including facts, decisions and conclusions saved manually or summarised from earlier chats. Use for questions about what the family has decided, learned or recorded.',
     strict: false,
@@ -245,6 +261,29 @@ function planJourney(args: { from?: unknown; to?: unknown; minutes_per_lock?: un
   };
 }
 
+function estimateDrakarFuel(args:{engine_minutes?:unknown;fuel_on_board_litres?:unknown;reserve_percent?:unknown}){
+  const minutes=Number(args.engine_minutes);
+  if(!Number.isFinite(minutes)||minutes<=0)return {error:'Engine-running minutes must be greater than zero.'};
+  const fuel=Number(args.fuel_on_board_litres)>0?Math.min(Number(args.fuel_on_board_litres),27):27;
+  const reservePercent=Number(args.reserve_percent)>=10&&Number(args.reserve_percent)<=50?Number(args.reserve_percent):20;
+  const hours=minutes/60;
+  // Planning band for an unidentified 15 HP petrol outboard. Real use varies
+  // substantially with two/four-stroke model, hull, load, propeller and stream.
+  const rates={gentle_river_cruise:2.5,planning_rate:3.5,heavy_or_near_full_throttle:5.5};
+  const round=(value:number)=>Math.round(value*10)/10;
+  const reserve=27*reservePercent/100,usable=Math.max(0,fuel-reserve);
+  const expected=hours*rates.planning_rate,high=hours*rates.heavy_or_near_full_throttle,low=hours*rates.gentle_river_cruise;
+  return {
+    boat:'Drakar',engine:'15 HP Mariner outboard',tank_capacity_litres:27,fuel_on_board_litres:round(fuel),reserve_percent:reservePercent,
+    reserve_litres:round(reserve),usable_before_reserve_litres:round(usable),engine_hours:round(hours),
+    estimated_consumption_litres:{gentle:round(low),expected:round(expected),conservative_high:round(high)},
+    expected_fuel_remaining_litres:round(fuel-expected),conservative_fuel_remaining_litres:round(fuel-high),
+    fits_before_reserve:{expected:expected<=usable,conservative_high:high<=usable},
+    assumed_burn_rates_litres_per_hour:rates,
+    warning:'Planning estimate only. The exact Mariner model and whether it is two- or four-stroke are not recorded. Consumption changes with hull, load, propeller, throttle and stream. Calibrate by recording engine hours and litres added at the next few refills.',
+  };
+}
+
 async function assetIdFromSlug(supabase: SupabaseClient, slug: unknown): Promise<string | null> {
   if (typeof slug !== 'string' || !slug) return null;
   const { data } = await supabase.from('assets').select('id').eq('slug', slug).maybeSingle();
@@ -253,6 +292,7 @@ async function assetIdFromSlug(supabase: SupabaseClient, slug: unknown): Promise
 
 export async function runBeckyTool(name: string, args: Record<string, unknown>, supabase: SupabaseClient, userId: string): Promise<string> {
   if (name === 'plan_thames_journey') return JSON.stringify(planJourney(args));
+  if (name === 'estimate_drakar_fuel') return JSON.stringify(estimateDrakarFuel(args));
   if (name === 'list_problems') {
     let query = supabase.from('troubleshooting').select('id,title,problem,solution,status,created_at,updated_at,assets(name)').order('updated_at', { ascending: false }).limit(50);
     if (args.status === 'open' || args.status === 'solved') query = query.eq('status', args.status);
