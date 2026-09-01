@@ -34,11 +34,13 @@ export default async function Home() {
 
       <section className="hero" id="top">
         <div className="river-line river-one" /><div className="river-line river-two" />
-        <p className="kicker">A shared guide to life on the water</p>
+        <div className="hero-burgee" aria-hidden="true"><span>BECKY</span><i>⚓</i><small>BOURNE END</small></div>
+        <p className="kicker"><span aria-hidden="true">✦</span> A shared guide to life on the water <span aria-hidden="true">✦</span></p>
         <h1>Everything you need<br />for <em>Becky</em> and beyond.</h1>
         <p className="hero-copy">Guides, local knowledge and answers for our boats and garden — all in one place.</p>
         <AskBecky />
         <Suspense fallback={null}><RiverStatus /></Suspense>
+        <p className="home-port">51.574538° N · 0.733883° W <span>Home reach</span></p>
       </section>
 
       <section className="vessels" id="vessels">
@@ -87,7 +89,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <footer id="manuals"><span className="brand-mark inverse">B</span><p>Made for the crews of Becky, Cormorant &amp; Drakar.</p><span>On the river · 2026</span></footer>
+      <footer id="manuals"><span className="brand-mark inverse">B</span><p>Made for the crews of Becky, Cormorant &amp; Drakar.</p><span className="footer-position">⚓ Bourne End · River Thames · 2026</span></footer>
     </main>
   );
 }
