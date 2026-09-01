@@ -1,0 +1,4 @@
+.notes-panel .admin-panel{max-width:720px;margin-bottom:28px}
+.notes-panel .manager-list{margin-top:20px}
+.note-body{padding:18px 22px;white-space:pre-wrap;font:15px/1.55 Georgia,serif}
+@media(max-width:760px){.notes-panel .admin-panel{padding:20px 16px}.note-body{padding:16px 12px}}

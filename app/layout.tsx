@@ -10,6 +10,7 @@ import './publishing.css';
 import './content-manager.css';
 import './chat.css';
 import './asset.css';
+import './notes.css';
 import './mobile.css';
 
 export const metadata: Metadata = {

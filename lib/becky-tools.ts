@@ -18,6 +18,17 @@ export const HOME_MOORING = {
 export const BECKY_TOOL_DEFINITIONS = [
   {
     type: 'function' as const,
+    name: 'list_notes',
+    description: 'List the family shared-memory notes, including facts, decisions and conclusions saved manually or summarised from earlier chats. Use for questions about what the family has decided, learned or recorded.',
+    strict: false,
+    parameters: {
+      type: 'object',
+      properties: { asset_slug: { type: 'string', enum: ['becky','cormorant','drakar'], description: 'Only notes for this asset. Omit to include general and all asset notes.' } },
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'function' as const,
     name: 'list_places',
     description: 'List the family\'s saved places along the river (moorings, pubs, cafés, shops, fuel and other useful stops) with their notes and coordinates. Use this for any question about places, moorings or where to stop.',
     strict: false,
@@ -285,6 +296,18 @@ export async function runBeckyTool(name: string, args: Record<string, unknown>, 
       ? conditions.filter(({ reach }) => /Marlow|Cookham|Temple|Boulter/i.test(reach))
       : conditions;
     return JSON.stringify({ home_reach: 'Marlow Lock to Cookham Lock', conditions: wanted });
+  }
+  if (name === 'list_notes') {
+    let query = supabase.from('notes').select('title,body,source,updated_at,assets(slug,name)').order('updated_at',{ascending:false}).limit(100);
+    if(typeof args.asset_slug==='string'&&args.asset_slug){
+      const {data:asset,error:assetError}=await supabase.from('assets').select('id').eq('slug',args.asset_slug).maybeSingle();
+      if(assetError)throw new Error(assetError.message);
+      if(!asset)return JSON.stringify({notes:[]});
+      query=query.eq('asset_id',asset.id);
+    }
+    const {data,error}=await query;
+    if(error)throw new Error(error.message);
+    return JSON.stringify({notes:data??[]});
   }
   if (name === 'list_places') {
     let query = supabase.from('places').select('name,category,notes,latitude,longitude,google_maps_url').eq('is_published', true).order('name');

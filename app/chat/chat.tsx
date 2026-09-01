@@ -27,6 +27,8 @@ export default function Chat() {
   const [input, setInput] = useState('');
   const [model, setModel] = useState(DEFAULT_AI_MODEL);
   const [loading, setLoading] = useState(false);
+  const [savingMemory,setSavingMemory]=useState(false);
+  const [memoryStatus,setMemoryStatus]=useState('');
   const [viewing, setViewing] = useState<{ message: number; source: Source } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesRef = useRef<Message[]>([]);
@@ -49,7 +51,6 @@ export default function Chat() {
     (async () => {
       try {
         const saved = localStorage.getItem(MODEL_KEY);
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time restore of persisted state
         if (saved && AI_MODELS.some(option => option.id === saved)) setModel(saved as typeof model);
       } catch { /* private mode */ }
       const { data: { user } } = await supabase.auth.getUser();
@@ -146,6 +147,18 @@ export default function Chat() {
 
   function submit(event: FormEvent) { event.preventDefault(); send(input); }
 
+  async function saveToGroupMemory(){
+    if(savingMemory||messages.length<2)return;
+    setSavingMemory(true);setMemoryStatus('Summarising the useful parts…');
+    try{
+      const response=await fetch('/api/chat/memory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:messages.map(({role,content})=>({role,content}))})});
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||'Unable to save this chat.');
+      setMemoryStatus(`Saved to group memory: ${result.title}`);
+    }catch(error){setMemoryStatus(error instanceof Error?error.message:'Unable to save this chat.');}
+    finally{setSavingMemory(false)}
+  }
+
   if (signedIn === false) {
     return (
       <div className="chat-page">
@@ -238,6 +251,10 @@ export default function Chat() {
           </main>
 
           <form className="chat-input" onSubmit={submit}>
+            {messages.some(message=>message.role==='assistant'&&!message.failed)&&<div className="chat-memory">
+              <button type="button" onClick={saveToGroupMemory} disabled={savingMemory||loading}>{savingMemory?'Adding to memory…':'Add this chat history to group memory'}</button>
+              {memoryStatus&&<span role="status">{memoryStatus}</span>}
+            </div>}
             <input
               value={input} onChange={event => setInput(event.target.value)}
               placeholder="Ask about the boats, the river, or a day out…"
