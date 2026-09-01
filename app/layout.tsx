@@ -16,6 +16,10 @@ import './mobile.css';
 export const metadata: Metadata = {
   title: 'Becky — The boat guide',
   description: 'The shared guide to Becky, Cormorant and Drakar.',
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
