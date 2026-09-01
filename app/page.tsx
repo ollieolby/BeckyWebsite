@@ -1,5 +1,7 @@
+import { Suspense } from 'react';
 import AskBecky from './ask-becky';
 import PlacesMap from './places-map';
+import RiverStatus from './river-status';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 const sections = [
@@ -25,7 +27,7 @@ export default async function Home() {
     <main>
       <header className="site-header">
         <a className="brand" href="#top" aria-label="Becky home"><span className="brand-mark">B</span><span>BECKY</span></a>
-        <nav aria-label="Main navigation"><a href="#vessels">The boats</a><a href="#explore">Explore</a><a href="#add-information">Add information</a></nav>
+        <nav aria-label="Main navigation"><a href="#vessels">The boats</a><a href="#explore">Explore</a><a href="/chat">Ask Becky</a><a href="#add-information">Add information</a></nav>
         <a className="ask-small" href="/admin">{signedInName ? `Hi, ${signedInName}` : 'Family area'} <span>✦</span></a>
       </header>
 
@@ -35,6 +37,7 @@ export default async function Home() {
         <h1>Everything you need<br />for <em>Becky</em> and beyond.</h1>
         <p className="hero-copy">Guides, local knowledge and answers for our boats and garden — all in one place.</p>
         <AskBecky />
+        <Suspense fallback={null}><RiverStatus /></Suspense>
       </section>
 
       <section className="vessels" id="vessels">
