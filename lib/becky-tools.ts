@@ -30,7 +30,7 @@ export const BECKY_TOOL_DEFINITIONS = [
   {
     type: 'function' as const,
     name: 'list_places',
-    description: 'List the family\'s saved places along the river (moorings, pubs, cafés, shops, fuel and other useful stops) with their notes and coordinates. Use this for any question about places, moorings or where to stop.',
+    description: 'List the family\'s saved places along the river (moorings, pubs, cafés, shops, fuel and other useful stops) with their notes and coordinates. ALWAYS use this when planning a day out, then consider suitable saved places as stops or destinations without claiming they fit a time window unless journey calculations or the saved notes support that.',
     strict: false,
     parameters: {
       type: 'object',

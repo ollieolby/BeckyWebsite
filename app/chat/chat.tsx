@@ -14,7 +14,7 @@ type Conversation = { id: string; title: string; updated_at: string };
 const MODEL_KEY = 'becky-chat-model';
 const SUGGESTIONS = [
   'How is the river looking today?',
-  'Plan a day trip from home to Henley and back.',
+  'Plan a day out from home and include a saved place that fits the time.',
   'Where is the fuel shut-off?',
   'What problems have we had before?',
 ];
