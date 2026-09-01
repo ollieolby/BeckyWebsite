@@ -98,6 +98,26 @@ export default function AdminForms({assets,canEdit}:{assets:Asset[];canEdit:bool
     }
   }
 
+  async function submitProblem(event:FormEvent<HTMLFormElement>){
+    event.preventDefault();
+    const form=event.currentTarget;
+    const fields=new FormData(form);
+    setBusy(true);
+    try{
+      setStatus('Logging the problem…');
+      const response=await fetch('/api/troubleshooting',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        title:fields.get('title'),problem:fields.get('problem'),solution:fields.get('solution'),asset_id:fields.get('asset_id')||null,
+      })});
+      const result=await readJson(response);
+      if(!response.ok)throw new Error(errorText(result,'Unable to log the problem.'));
+      setStatus('Problem logged. Refreshing…');
+      setTimeout(()=>window.location.reload(),900);
+    }catch(error){
+      setStatus(error instanceof Error?error.message:'Unable to log the problem. Check your connection and try again.');
+      setBusy(false);
+    }
+  }
+
   async function resolveMap(){
     if(!mapUrl)return;
     setLooking(true);
@@ -131,5 +151,12 @@ export default function AdminForms({assets,canEdit}:{assets:Asset[];canEdit:bool
         <label>Our photograph (optional)<input name="image" type="file" accept="image/jpeg,image/png,image/webp,image/heic"/></label><label>Notes<textarea name="notes" rows={4}/></label><button disabled={busy}>{busy?'Working…':'Save place'}</button>
       </form>
     </article>
+    <article className="admin-panel"><h2>Log a problem</h2><p>Something not working, or a fault you have just fixed? Write it down so nobody has to solve it twice. It also appears on the boat&rsquo;s page and Ask Becky checks it when diagnosing.</p><form onSubmit={submitProblem}>
+      <label>What&rsquo;s the problem?<input name="title" required placeholder="Webasto heater cutting out"/></label>
+      <label>For<select name="asset_id"><option value="">General</option>{assets.map(asset=><option value={asset.id} key={asset.id}>{asset.name}</option>)}</select></label>
+      <label>What happened<textarea name="problem" required rows={4} placeholder="Symptoms, when it started, anything already tried"/></label>
+      <label>The fix (leave blank if still open)<textarea name="solution" rows={3} placeholder="What solved it, so the next person can repeat it"/></label>
+      <button disabled={busy}>{busy?'Working…':'Log problem'}</button>
+    </form></article>
   </div><p className="save-status" role="status" aria-live="polite">{status}</p></>;
 }
