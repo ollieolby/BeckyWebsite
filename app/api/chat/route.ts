@@ -75,13 +75,18 @@ export async function POST(request: Request) {
         input,
         tools,
         store: false,
+        // Stateless mode: reasoning items must carry their content inline so
+        // they can be echoed back in the next tool round.
+        include: ['reasoning.encrypted_content'],
       });
       collectCitations(response, citedFileIds);
       const calls = response.output.filter(item => item.type === 'function_call');
       if (!calls.length) break;
-      // Send the model's whole output back (reasoning items included), then
-      // answer each function call so the next round can use the results.
-      input.push(...(response.output as OpenAI.Responses.ResponseInputItem[]));
+      // Send the model's output back (reasoning items included), then answer
+      // each function call so the next round can use the results. Built-in
+      // tool call items (file_search_call) are server-state stubs that cannot
+      // be resent with store:false — the API 404s on their ids — so drop them.
+      input.push(...(response.output.filter(item => item.type !== 'file_search_call') as OpenAI.Responses.ResponseInputItem[]));
       for (const call of calls) {
         let output: string;
         try {

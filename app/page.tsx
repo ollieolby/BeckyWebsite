@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
 import AskBecky from './ask-becky';
 import PlacesMap from './places-map';
 import RiverStatus from './river-status';
@@ -11,9 +12,9 @@ const sections = [
 ];
 
 const quickLinks = [
-  ['Manuals & guides', 'Find instructions and original documents', '↗'],
-  ['Places nearby', 'Pubs, cafés, shops and useful stops', '↗'],
-  ['Mooring map', 'Saved spots, notes and local knowledge', '↗'],
+  ['Manuals & guides', 'Find instructions and original documents', '/becky'],
+  ['Places nearby', 'Pubs, cafés, shops and useful stops', '/cormorant'],
+  ['Mooring map', 'Saved spots, notes and local knowledge', '#map'],
 ];
 
 export default async function Home() {
@@ -27,8 +28,8 @@ export default async function Home() {
     <main>
       <header className="site-header">
         <a className="brand" href="#top" aria-label="Becky home"><span className="brand-mark">B</span><span>BECKY</span></a>
-        <nav aria-label="Main navigation"><a href="#vessels">The boats</a><a href="#explore">Explore</a><a href="/chat">Ask Becky</a><a href="#add-information">Add information</a></nav>
-        <a className="ask-small" href="/admin">{signedInName ? `Hi, ${signedInName}` : 'Family area'} <span>✦</span></a>
+        <nav aria-label="Main navigation"><a href="#vessels">The boats</a><a href="#explore">Explore</a><Link href="/chat">Ask Becky</Link><a href="#add-information">Add information</a></nav>
+        <Link className="ask-small" href="/admin">{signedInName ? `Hi, ${signedInName}` : 'Family area'} <span>✦</span></Link>
       </header>
 
       <section className="hero" id="top">
@@ -47,7 +48,7 @@ export default async function Home() {
         </div>
         <div className="card-grid">
           {sections.map((section) => (
-            <a className={`place-card ${section.accent}`} href="/admin" key={section.name}>
+            <a className={`place-card ${section.accent}`} href={`/${section.accent}`} key={section.name}>
               <div className="card-art"><span className="monogram">{section.icon}</span><span className="wave wave-a" /><span className="wave wave-b" /></div>
               <div className="card-copy"><p>{section.eyebrow}</p><h3>{section.name}</h3><span>{section.text}</span><b>Explore <i>→</i></b></div>
             </a>
@@ -58,8 +59,8 @@ export default async function Home() {
       <section className="explore" id="explore">
         <div><p className="kicker">Find your way around</p><h2>Useful, even with wet hands.</h2></div>
         <div className="quick-links">
-          {quickLinks.map(([title, description, arrow]) => (
-            <a href="/admin" key={title}><span className="quick-icon">{title.charAt(0)}</span><span><strong>{title}</strong><small>{description}</small></span><b>{arrow}</b></a>
+          {quickLinks.map(([title, description, href]) => (
+            <a href={href} key={title}><span className="quick-icon">{title.charAt(0)}</span><span><strong>{title}</strong><small>{description}</small></span><b>↗</b></a>
           ))}
         </div>
       </section>
@@ -77,12 +78,12 @@ export default async function Home() {
           <p className="kicker">Keep our knowledge growing</p>
           <h2>Add something useful</h2>
           <p>Found a good mooring? Learnt how something aboard works? Upload it while it’s fresh, so both families can find it next time.</p>
-          <a className="add-primary" href="/admin">Add information <span>→</span></a>
+          <Link className="add-primary" href="/admin">Add information <span>→</span></Link>
         </div>
         <div className="add-options">
-          <a href="/admin"><span>01</span><strong>Upload a manual</strong><small>Add a PDF or practical document</small><b>→</b></a>
-          <a href="/admin"><span>02</span><strong>Save a place</strong><small>Paste a Maps link and add our notes</small><b>→</b></a>
-          <a href="/admin"><span>03</span><strong>Share a useful note</strong><small>Capture family knowledge and checklists</small><b>→</b></a>
+          <Link href="/admin"><span>01</span><strong>Upload a manual</strong><small>Add a PDF or practical document</small><b>→</b></Link>
+          <Link href="/admin"><span>02</span><strong>Save a place</strong><small>Paste a Maps link and add our notes</small><b>→</b></Link>
+          <Link href="/admin"><span>03</span><strong>Share a useful note</strong><small>Capture family knowledge and checklists</small><b>→</b></Link>
         </div>
       </section>
 

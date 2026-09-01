@@ -157,7 +157,7 @@ export default function Chat() {
           <span className="sparkle" aria-hidden="true">✦</span>
           <h1>Family sign-in needed</h1>
           <p>Ask Becky answers from the family&rsquo;s own manuals and river data, so it is for signed-in family members.</p>
-          <p><a className="chat-signin" href="/login">Sign in →</a></p>
+          <p><Link className="chat-signin" href="/login">Sign in →</Link></p>
         </div>
       </div>
     );
