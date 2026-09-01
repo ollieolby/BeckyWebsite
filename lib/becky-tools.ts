@@ -66,6 +66,67 @@ export const BECKY_TOOL_DEFINITIONS = [
   },
   {
     type: 'function' as const,
+    name: 'list_problems',
+    description: 'List the family troubleshooting log: problems that happened aboard and how they were solved. ALWAYS check this when helping diagnose a fault — the same thing may have happened before.',
+    strict: false,
+    parameters: {
+      type: 'object',
+      properties: {
+        status: { type: 'string', enum: ['open', 'solved'], description: 'Only problems with this status. Omit for all.' },
+      },
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'function' as const,
+    name: 'log_problem',
+    description: 'Record a new problem in the family troubleshooting log. Confirm the wording with the user before calling. Requires editor access.',
+    strict: false,
+    parameters: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', description: 'Short name for the problem, e.g. "Webasto heater cutting out".' },
+        problem: { type: 'string', description: 'What happened, symptoms, and anything already tried.' },
+        asset_slug: { type: 'string', enum: ['becky', 'cormorant', 'drakar'], description: 'Which boat or the garden this concerns. Omit for general.' },
+      },
+      required: ['title', 'problem'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'function' as const,
+    name: 'solve_problem',
+    description: 'Record the solution to a problem in the troubleshooting log and mark it solved. Confirm the wording with the user before calling. Requires editor access.',
+    strict: false,
+    parameters: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', description: 'The problem id from list_problems.' },
+        solution: { type: 'string', description: 'What fixed it, so the next person can repeat it.' },
+      },
+      required: ['id', 'solution'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'function' as const,
+    name: 'save_guide',
+    description: 'Save a new family guide (published for the family and site visitors). Use when the user wants to write down knowledge, a checklist or instructions. Confirm the full text with the user before calling. Requires editor access.',
+    strict: false,
+    parameters: {
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        summary: { type: 'string', description: 'One or two sentences on what the guide covers.' },
+        body: { type: 'string', description: 'The full guide text, in Markdown.' },
+        asset_slug: { type: 'string', enum: ['becky', 'cormorant', 'drakar'], description: 'Which boat or the garden this concerns. Omit for general.' },
+      },
+      required: ['title', 'body'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'function' as const,
     name: 'get_river_level',
     description: 'Get the live river level at the Cookham Lock gauge (the home reach), with the gauge\'s typical range. Reported every 15 minutes by the Environment Agency. Use for "how high is the river", "is the river up" and before-trip checks.',
     strict: false,
@@ -173,8 +234,50 @@ function planJourney(args: { from?: unknown; to?: unknown; minutes_per_lock?: un
   };
 }
 
-export async function runBeckyTool(name: string, args: Record<string, unknown>, supabase: SupabaseClient): Promise<string> {
+async function assetIdFromSlug(supabase: SupabaseClient, slug: unknown): Promise<string | null> {
+  if (typeof slug !== 'string' || !slug) return null;
+  const { data } = await supabase.from('assets').select('id').eq('slug', slug).maybeSingle();
+  return data?.id ?? null;
+}
+
+export async function runBeckyTool(name: string, args: Record<string, unknown>, supabase: SupabaseClient, userId: string): Promise<string> {
   if (name === 'plan_thames_journey') return JSON.stringify(planJourney(args));
+  if (name === 'list_problems') {
+    let query = supabase.from('troubleshooting').select('id,title,problem,solution,status,created_at,updated_at,assets(name)').order('updated_at', { ascending: false }).limit(50);
+    if (args.status === 'open' || args.status === 'solved') query = query.eq('status', args.status);
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+    return JSON.stringify({ problems: data ?? [] });
+  }
+  if (name === 'log_problem') {
+    const title = String(args.title ?? '').trim(), problem = String(args.problem ?? '').trim();
+    if (!title || !problem) return JSON.stringify({ error: 'A title and a problem description are required.' });
+    const { data, error } = await supabase.from('troubleshooting').insert({
+      title, problem, asset_id: await assetIdFromSlug(supabase, args.asset_slug), created_by: userId,
+    }).select('id,title,status').single();
+    if (error) return JSON.stringify({ error: `Could not log it (${error.message}). The user may need editor access.` });
+    return JSON.stringify({ logged: data });
+  }
+  if (name === 'solve_problem') {
+    const solution = String(args.solution ?? '').trim();
+    if (!solution) return JSON.stringify({ error: 'A solution description is required.' });
+    const { data, error } = await supabase.from('troubleshooting')
+      .update({ solution, status: 'solved', updated_at: new Date().toISOString() })
+      .eq('id', String(args.id ?? '')).select('id,title,status').maybeSingle();
+    if (error) return JSON.stringify({ error: `Could not save the solution (${error.message}). The user may need editor access.` });
+    return JSON.stringify(data ? { solved: data } : { error: 'No problem with that id.' });
+  }
+  if (name === 'save_guide') {
+    const title = String(args.title ?? '').trim(), body = String(args.body ?? '').trim();
+    if (!title || !body) return JSON.stringify({ error: 'A title and the guide text are required.' });
+    const slug = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60)}-${Date.now().toString(36)}`;
+    const { data, error } = await supabase.from('guides').insert({
+      title, slug, summary: String(args.summary ?? '').trim(), body,
+      asset_id: await assetIdFromSlug(supabase, args.asset_slug), is_published: true, created_by: userId,
+    }).select('id,title,slug').single();
+    if (error) return JSON.stringify({ error: `Could not save the guide (${error.message}). The user may need editor access.` });
+    return JSON.stringify({ saved: data, note: 'Published. It can be edited or unpublished in the family area.' });
+  }
   if (name === 'get_river_level') return JSON.stringify(await fetchRiverLevel());
   if (name === 'get_river_conditions') {
     const conditions = await fetchRiverConditions();

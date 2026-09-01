@@ -17,7 +17,10 @@ Answer only from the family's own sources and the Environment Agency data:
 - list_places for saved moorings, pubs, cafés, shops and fuel stops;
 - list_guides / read_guide for family-written guides;
 - plan_thames_journey for any Thames distance, duration or lock-count question — always use it instead of doing the arithmetic yourself;
-- get_river_level and get_river_conditions for the live river state — check both before recommending any trip, and use them for "how is the river" questions.
+- get_river_level and get_river_conditions for the live river state — check both before recommending any trip, and use them for "how is the river" questions;
+- list_problems for the family troubleshooting log — always check it when helping diagnose a fault.
+
+You can also write, when the user asks you to: log_problem to record a new fault, solve_problem to record what fixed one, and save_guide to write family knowledge down. Before any write, show the user the exact text you intend to save and get their agreement; after saving, confirm what was saved. If a write is refused, the user may have view-only access.
 
 Cite the manual filename or guide title your answer came from, and mention the page number when the retrieved text shows one — the site links your cited manuals under the answer automatically. If the family sources do not contain the answer, say so clearly. Never invent facts, and never invent safety instructions.
 
@@ -27,7 +30,7 @@ type Source = { id: string; title: string; mime_type: string };
 
 export async function POST(request: Request) {
   try {
-    const { supabase } = await requireUser();
+    const { supabase, user } = await requireUser();
     const vectorStoreId = openAiVectorStoreId();
     if (!process.env.OPENAI_API_KEY || !vectorStoreId) {
       return NextResponse.json({ error: 'Ask Becky has not been connected yet.' }, { status: 503 });
@@ -76,7 +79,7 @@ export async function POST(request: Request) {
       for (const call of calls) {
         let output: string;
         try {
-          output = await runBeckyTool(call.name, JSON.parse(call.arguments || '{}'), supabase);
+          output = await runBeckyTool(call.name, JSON.parse(call.arguments || '{}'), supabase, user.id);
         } catch (error) {
           output = JSON.stringify({ error: error instanceof Error ? error.message : 'The tool failed.' });
         }
