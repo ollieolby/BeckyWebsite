@@ -1,5 +1,7 @@
 'use client';
 import { FormEvent, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { AI_MODELS, DEFAULT_AI_MODEL } from '@/lib/ai-models';
 
 export default function AskBecky() {
@@ -37,7 +39,7 @@ export default function AskBecky() {
         {AI_MODELS.map(option => <option key={option.id} value={option.id}>{option.label}</option>)}
       </select>
     </label>
-    {answer && <div className="ask-answer" role="status">{answer}{answer.startsWith('Please sign in') && <> <a href="/login">Sign in</a></>}</div>}
+    {answer && <div className="ask-answer" role="status"><ReactMarkdown remarkPlugins={[remarkGfm]}>{answer}</ReactMarkdown>{answer.startsWith('Please sign in') && <a href="/login">Sign in</a>}</div>}
     <p className="try-it">Try asking: <button onClick={() => setQuestion('Where is the fuel shut-off?')}>Where is the fuel shut-off?</button> <i>·</i> <button onClick={() => setQuestion('What is the best pub nearby?')}>Best pub nearby?</button></p>
   </>;
 }
