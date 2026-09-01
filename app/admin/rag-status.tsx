@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-type Status={connected:boolean;message?:string;name?:string;status?:string;files?:{completed:number;failed:number;in_progress:number;total:number}};
+type Status={connected:boolean;message?:string;name?:string;status?:string;files?:{completed:number;failed:number;in_progress:number;total:number};reconciled?:number};
 
 export default function RagStatus(){
   const [status,setStatus]=useState<Status|null>(null);
@@ -17,6 +17,7 @@ export default function RagStatus(){
         const next:Status=await response.json();
         if(cancelled)return;
         setStatus(next);
+        if((next.reconciled??0)>0)router.refresh();
         const processing=(next.files?.in_progress??0)>0;
         // The status endpoint also reconciles pending documents, so once
         // processing finishes, re-render the server components to update the

@@ -15,11 +15,13 @@ export async function GET() {
     const openai = new OpenAI();
     const store = await openai.vectorStores.retrieve(vectorStoreId);
     const { data: pending } = await supabase.from('documents').select('id,openai_file_id').eq('index_status', 'pending').not('openai_file_id', 'is', null);
+    let reconciled = 0;
     await Promise.all((pending ?? []).map(async document => {
       try {
         const file = await openai.vectorStores.files.retrieve(vectorStoreId, document.openai_file_id!);
         if (file.status === 'completed' || file.status === 'failed') {
-          await supabase.from('documents').update({ index_status: file.status === 'completed' ? 'indexed' : 'failed' }).eq('id', document.id);
+          const { error } = await supabase.from('documents').update({ index_status: file.status === 'completed' ? 'indexed' : 'failed' }).eq('id', document.id);
+          if (!error) reconciled++;
         }
       } catch { /* A later status check can retry reconciliation. */ }
     }));
@@ -29,6 +31,7 @@ export async function GET() {
       name: store.name,
       files: store.file_counts,
       usageBytes: store.usage_bytes,
+      reconciled,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unable to check Ask Becky.';
