@@ -18,12 +18,20 @@ export async function GET() {
     let reconciled = 0;
     await Promise.all((pending ?? []).map(async document => {
       try {
-        const file = await openai.vectorStores.files.retrieve(vectorStoreId, document.openai_file_id!);
+        // retrieve takes the file id first and the store in params. Called the
+        // other way round it throws every time, and with the error swallowed
+        // below nothing ever moved off 'pending' however long the vector store
+        // had been finished with it.
+        const file = await openai.vectorStores.files.retrieve(document.openai_file_id!, { vector_store_id: vectorStoreId });
         if (file.status === 'completed' || file.status === 'failed') {
           const { error } = await supabase.from('documents').update({ index_status: file.status === 'completed' ? 'indexed' : 'failed' }).eq('id', document.id);
           if (!error) reconciled++;
         }
-      } catch { /* A later status check can retry reconciliation. */ }
+      } catch (error) {
+        // A later check can retry, but a failure that repeats forever should
+        // not be invisible.
+        console.error('[rag status] could not reconcile', document.id, error instanceof Error ? error.message : error);
+      }
     }));
     return NextResponse.json({
       connected: store.status === 'completed',
