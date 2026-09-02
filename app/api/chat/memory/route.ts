@@ -22,7 +22,17 @@ export async function POST(request:Request){
     const summary=JSON.parse(response.output_text) as {title?:string;body?:string};
     const title=String(summary.title??'').trim(),content=String(summary.body??'').trim();
     if(!title||!content)throw new Error('The chat summary was empty.');
-    const {data,error}=await supabase.from('notes').insert({title,body:content,source:'chat',created_by:user.id}).select('id,title').single();
+    // Which place the memory belongs to, chosen in the chat before saving.
+    // Without it every chat note landed as "general" and never showed up
+    // against the boat or the garden it was actually about.
+    const slug=typeof body.asset_slug==='string'?body.asset_slug:'';
+    let assetId:string|null=null;
+    if(slug&&slug!=='general'){
+      const {data:asset}=await supabase.from('assets').select('id').eq('slug',slug).maybeSingle();
+      if(!asset)return NextResponse.json({error:'That is not one of the places.'},{status:400});
+      assetId=asset.id;
+    }
+    const {data,error}=await supabase.from('notes').insert({title,body:content,asset_id:assetId,source:'chat',created_by:user.id}).select('id,title').single();
     if(error)throw error; return NextResponse.json(data,{status:201});
   }catch(error){return apiError(error,'Unable to add this chat to group memory.');}
 }

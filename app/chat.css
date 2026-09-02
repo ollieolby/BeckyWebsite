@@ -97,3 +97,7 @@
 .chat-upload-button:disabled{opacity:.6;cursor:default}
 .chat-upload-status{font-size:12px;color:#5c6b66;overflow-wrap:anywhere}
 @media(max-width:600px){.chat-upload-button{width:100%;justify-content:center;min-height:38px}}
+.chat-memory-ask{font-size:12px;font-weight:700;color:var(--ink)}
+.chat-memory-pick{border:1px solid #d7d0c3;border-radius:999px;background:var(--paper);color:var(--ink);padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;min-height:0}
+.chat-memory-pick:hover{border-color:var(--rust);color:var(--rust)}
+.chat-memory-cancel{border:0;background:none;color:#6c7975;font-size:12px;text-decoration:underline;cursor:pointer;padding:6px 4px;min-height:0}

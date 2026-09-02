@@ -13,6 +13,10 @@ type Message = { role: 'user' | 'assistant'; content: string; sources?: Source[]
 type Conversation = { id: string; title: string; updated_at: string };
 
 const MODEL_KEY = 'becky-chat-model';
+// Fixed by the assets table's own check constraint.
+const MEMORY_TARGETS: [string, string][] = [
+  ['becky', 'Becky'], ['cormorant', 'Cormorant'], ['drakar', 'Drakar'], ['general', 'All of us'],
+];
 const SUGGESTIONS = [
   'How is the river looking today?',
   'Plan a day out from home and include a saved place that fits the time.',
@@ -30,6 +34,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const [savingMemory,setSavingMemory]=useState(false);
   const [memoryStatus,setMemoryStatus]=useState('');
+  const [choosingMemory,setChoosingMemory]=useState(false);
   const [viewing, setViewing] = useState<{ message: number; source: Source } | null>(null);
   const [preview, setPreview] = useState<{ id: string; markdown?: string; available: boolean; reason?: string } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -164,11 +169,12 @@ export default function Chat() {
 
   function submit(event: FormEvent) { event.preventDefault(); send(input); }
 
-  async function saveToGroupMemory(){
+  async function saveToGroupMemory(assetSlug:string){
     if(savingMemory||messages.length<2)return;
+    setChoosingMemory(false);
     setSavingMemory(true);setMemoryStatus('Summarising the useful parts…');
     try{
-      const response=await fetch('/api/chat/memory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:messages.map(({role,content})=>({role,content}))})});
+      const response=await fetch('/api/chat/memory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({asset_slug:assetSlug,messages:messages.map(({role,content})=>({role,content}))})});
       const result=await response.json();
       if(!response.ok)throw new Error(result.error||'Unable to save this chat.');
       setMemoryStatus(`Saved to group memory: ${result.title}`);
@@ -285,7 +291,15 @@ export default function Chat() {
               onDone={summary => setMessages(current => [...current, { role: 'assistant', content: summary }])}
             />
             {messages.some(message=>message.role==='assistant'&&!message.failed)&&<div className="chat-memory">
-              <button type="button" onClick={saveToGroupMemory} disabled={savingMemory||loading}>{savingMemory?'Adding to memory…':'Add this chat history to group memory'}</button>
+              {choosingMemory
+                // Asking which place it belongs to, rather than filing every
+                // chat under "general" and losing it.
+                ? <><span className="chat-memory-ask">What is this about?</span>
+                    {MEMORY_TARGETS.map(([slug,label])=>(
+                      <button type="button" key={slug} className="chat-memory-pick" onClick={()=>saveToGroupMemory(slug)} disabled={savingMemory}>{label}</button>
+                    ))}
+                    <button type="button" className="chat-memory-cancel" onClick={()=>setChoosingMemory(false)}>Cancel</button></>
+                : <button type="button" onClick={()=>setChoosingMemory(true)} disabled={savingMemory||loading}>{savingMemory?'Adding to memory…':'Add this chat history to group memory'}</button>}
               {memoryStatus&&<span role="status">{memoryStatus}</span>}
             </div>}
             <input
