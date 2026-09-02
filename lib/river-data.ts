@@ -4,7 +4,7 @@
 
 const STATION_ID = '2601TH';
 const STATION_NAME = 'Cookham Lock';
-const CONDITIONS_URL = 'https://www.gov.uk/guidance/river-thames-current-river-conditions';
+export const CONDITIONS_URL = 'https://www.gov.uk/guidance/river-thames-current-river-conditions';
 
 export type RiverLevel = {
   station: string;
@@ -70,3 +70,26 @@ export async function fetchRiverConditions(): Promise<ReachCondition[]> {
 export function nearHome(conditions: ReachCondition[]): ReachCondition[] {
   return conditions.filter(({ reach }) => /Marlow|Cookham|Temple|Boulter/i.test(reach));
 }
+
+// The Environment Agency puts a coloured board out at each lock. Red means do
+// not go; yellow means the stream is changing and to think twice; green means
+// nothing is flagged. The wording is theirs, so it is matched rather than
+// guessed at, and anything unrecognised counts as a warning rather than being
+// quietly treated as fine.
+export type Board = 'green' | 'amber' | 'red';
+
+export function boardFor(conditions: ReachCondition[]): Board {
+  let board: Board = 'green';
+  for (const { conditions: text } of conditions) {
+    if (/strong stream/i.test(text)) return 'red';
+    if (/no stream warnings/i.test(text)) continue;
+    board = 'amber';
+  }
+  return board;
+}
+
+export const BOARD_WORDS: Record<Board, string> = {
+  green: 'No stream warnings',
+  amber: 'Caution — stream changing',
+  red: 'Caution — strong stream',
+};

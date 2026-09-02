@@ -72,11 +72,26 @@
 @media(max-width:600px){.chat-memory{align-items:stretch;flex-direction:column}.chat-memory button{width:100%;min-height:42px}.chat-memory span{text-align:center}.chat-input input{font-size:16px;min-width:0}.chat-input>button{padding:0 16px}}
 
 /* Live river strip on the homepage */
-.river-status{width:min(680px,92vw);margin:14px auto 0;display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:9px 15px;border-radius:10px;background:rgba(255,253,248,.85);border:1px solid rgba(23,62,57,.14);font-size:13px;position:relative;z-index:2;text-align:left}
-.river-status .river-dot{width:9px;height:9px;border-radius:50%;flex:none}
-.river-status.river-ok .river-dot{background:#2e7d32}
-.river-status.river-warn .river-dot{background:#c62828}
-.river-status.river-warn{border-color:rgba(198,40,40,.4)}
+/* The stream warning, drawn as the board it is on the river. Bigger than the
+   old strip because it is the one thing on the page that decides whether
+   anyone goes out today. */
+.river-flag{width:min(680px,92vw);margin:22px auto 0;display:flex;align-items:center;gap:16px;padding:14px 18px;border-radius:12px;background:var(--paper);border:1px solid rgba(18,62,71,.16);position:relative;z-index:2;text-align:left;transition:border-color .2s ease,box-shadow .2s ease}
+.river-flag:hover{border-color:var(--rust);box-shadow:0 6px 18px rgba(12,51,64,.09)}
+.river-flag-mark{width:38px;height:45px;flex:none}
+.river-flag-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.river-flag-text strong{font:600 17px/1.25 Georgia,serif;color:var(--deep-water)}
+.river-flag-text small{font-size:12.5px;color:#6c7975;overflow-wrap:anywhere}
+.river-flag-go{flex:none;color:var(--rust);font-size:16px;font-weight:700}
+
+/* Green, yellow and red are the Environment Agency's own board colours. */
+.board-green .river-flag-cloth{fill:#2e7d32}
+.board-amber .river-flag-cloth{fill:#e0a11b}
+.board-red   .river-flag-cloth{fill:#c62828}
+.board-amber{border-color:rgba(224,161,27,.5);background:rgba(224,161,27,.07)}
+.board-red{border-color:rgba(198,40,40,.5);background:rgba(198,40,40,.06)}
+.board-red .river-flag-text strong{color:#a91f1f}
+
+@media(max-width:600px){.river-flag{gap:12px;padding:12px 14px}.river-flag-mark{width:32px;height:38px}.river-flag-text strong{font-size:15.5px}}
 
 /* The readable version of a source. Word files cannot be shown in a frame, so
    their Markdown rendition is rendered here with the figures put back in. */

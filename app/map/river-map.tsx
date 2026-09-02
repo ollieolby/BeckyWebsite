@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import * as maplibregl from 'maplibre-gl';
 import { THAMES_LOCKS } from '@/lib/thames-locks';
-import { Anchor } from '../marks';
 import { CATEGORY_COLOURS, CATEGORY_LABELS, CATEGORY_ICONS, markerElement } from './marker-icons';
 
 type Place = {
@@ -83,6 +82,33 @@ function buildMap(container: HTMLDivElement) {
   });
 }
 
+
+// "Back to the home mooring", built as a MapLibre control so it stacks with
+// the zoom and locate buttons instead of floating in the opposite corner.
+class HomeControl implements maplibregl.IControl {
+  private node?: HTMLDivElement;
+
+  onAdd(map: maplibregl.Map) {
+    const node = document.createElement('div');
+    node.className = 'maplibregl-ctrl maplibregl-ctrl-group';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.title = 'Back to the home mooring';
+    button.setAttribute('aria-label', 'Back to the home mooring');
+    button.className = 'map-home-button';
+    button.innerHTML = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+      stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${CATEGORY_ICONS.home}</svg>`;
+    button.addEventListener('click', () => map.flyTo({ center: HOME, zoom: 13, duration: 900 }));
+    node.appendChild(button);
+    this.node = node;
+    return node;
+  }
+
+  onRemove() {
+    this.node?.remove();
+  }
+}
+
 export default function RiverMap() {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -124,6 +150,14 @@ export default function RiverMap() {
 
     mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    // Where the reader is, if they let the browser say. Needs https, which
+    // the deployed site has; on http it simply never offers.
+    map.addControl(new maplibregl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
+      trackUserLocation: true,
+      showAccuracyCircle: true,
+    }), 'top-right');
+    map.addControl(new HomeControl(), 'top-right');
     map.on('error', event => {
       console.error('[river map]', event.error?.message ?? event);
     });
@@ -187,11 +221,6 @@ export default function RiverMap() {
     }
   }, [showLocks, places]);
 
-  function goHome() {
-    setActive(null);
-    mapRef.current?.flyTo({ center: HOME, zoom: 13, duration: 900 });
-  }
-
   function show(lng: number, lat: number, key: string) {
     setActive(key);
     mapRef.current?.flyTo({ center: [lng, lat], zoom: 15, duration: 900 });
@@ -222,11 +251,7 @@ export default function RiverMap() {
       <div className="river-map-canvas">
         <div ref={container} className="map-surface" aria-label="Map of the family's saved places and the Thames locks" />
         {mapProblem && <p className="map-unavailable">{mapProblem}</p>}
-        {!mapProblem && (
-          <button type="button" className="map-home" onClick={goHome} title="Back to the home mooring">
-            <Anchor size={15} /> Home
-          </button>
-        )}
+
         <div className="map-legend">
           {['mooring', 'pub', 'cafe', 'shop', 'fuel'].map(key => (
             <span key={key}>

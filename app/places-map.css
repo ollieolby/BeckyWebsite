@@ -47,8 +47,8 @@
 .map-legend span{display:inline-flex;align-items:center;gap:5px}
 .map-legend-toggle{display:inline-flex;align-items:center;gap:6px;cursor:pointer;padding-left:11px;border-left:1px solid rgba(18,62,71,.16)}
 .map-legend-toggle input{accent-color:var(--river);width:14px;height:14px}
-.map-home{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid rgba(18,62,71,.16);border-radius:8px;background:rgba(255,253,247,.94);color:var(--deep-water);font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 3px 12px rgba(12,51,64,.12)}
-.map-home:hover{border-color:var(--rust);color:var(--rust)}
+.map-home-button{display:grid;place-items:center;color:var(--deep-water)}
+.map-home-button:hover{color:var(--rust)}
 .map-unavailable{position:absolute;inset:0;display:grid;place-items:center;margin:0;padding:24px;text-align:center;color:#4b5a56;font-size:14px;line-height:1.6}
 .river-map-search{width:100%;margin:0 0 18px;border:1px solid #d7d0c3;border-radius:9px;background:var(--paper);color:var(--ink);padding:11px 14px;font:15px inherit}
 .river-map-search:focus{outline:2px solid var(--rust);outline-offset:1px}
