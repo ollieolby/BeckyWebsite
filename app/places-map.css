@@ -1,1 +1,47 @@
 .map-section{padding:88px clamp(24px,7vw,110px);background:var(--paper)}.map-section-heading{max-width:1220px;margin:0 auto 32px;display:flex;align-items:end;justify-content:space-between;gap:30px}.map-section-heading h2{font:500 clamp(38px,4vw,54px)/1.05 Georgia,serif;letter-spacing:-.035em;margin:0}.map-section-heading>p{max-width:390px;color:#65736f;font:15px/1.6 Georgia,serif}.map-shell{position:relative;max-width:1220px;height:520px;margin:auto;border:1px solid #d8d2c7;border-radius:9px;overflow:hidden;background:#e8e4dc}.map-canvas{position:absolute;inset:0}.map-message{position:absolute;z-index:2;left:18px;bottom:18px;padding:10px 14px;border-radius:6px;background:rgba(255,253,248,.94);box-shadow:0 5px 18px rgba(23,62,57,.15);font-size:12px;font-weight:800}.map-message a{color:var(--rust);text-decoration:underline}.map-sign-in{left:50%;bottom:50%;transform:translate(-50%,50%);font-size:14px;padding:17px 20px}.place-popup{min-width:190px;color:var(--ink)}.place-popup small,.place-popup strong,.place-popup a{display:block}.place-popup small{text-transform:uppercase;letter-spacing:.14em;color:var(--rust);font-size:9px;font-weight:800}.place-popup strong{font:20px Georgia,serif;margin:5px 0}.place-popup p{font:12px/1.45 Arial,sans-serif;color:#5e6c68}.place-popup a{font-size:11px;font-weight:800;color:var(--rust);margin-top:10px}.maplibregl-popup-content{border-radius:7px!important;padding:16px!important}.maplibregl-ctrl-attrib{font-size:9px!important}@media(max-width:760px){.map-section{padding-top:65px;padding-bottom:65px}.map-section-heading{display:block}.map-section-heading>p{margin-top:15px}.map-shell{height:420px}}
+
+/* The river map page: the map and the list of places side by side, so
+   choosing something in the list moves the map to it. */
+.map-page{min-height:100dvh;background:var(--paper);display:flex;flex-direction:column}
+.map-page-intro{max-width:1220px;width:100%;margin:0 auto;padding:clamp(30px,4vw,52px) clamp(18px,4vw,40px) clamp(20px,3vw,30px)}
+.map-page-intro .hero-mark{margin:0 0 14px}
+.map-page-intro h1{font:500 clamp(32px,4vw,48px)/1.06 Georgia,serif;letter-spacing:-.03em;color:var(--deep-water);margin:0 0 10px}
+.map-page-intro p{max-width:56ch;color:#60706b;font:16px/1.6 Georgia,serif;margin:0}
+
+.river-map{flex:1;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,.95fr);gap:20px;max-width:1220px;width:100%;margin:0 auto;padding:0 clamp(18px,4vw,40px) clamp(36px,5vw,64px)}
+.river-map-canvas{position:sticky;top:16px;height:min(74vh,640px);border:1px solid rgba(18,62,71,.16);border-radius:10px;overflow:hidden;background:#e8e4dc}
+.river-map-canvas>div{position:absolute;inset:0}
+
+.river-map-list{min-width:0;max-height:min(74vh,640px);overflow:auto;padding-right:4px}
+.river-map-note{color:#60706b;font-size:14px;line-height:1.6}
+.river-map-note a{color:var(--rust);font-weight:700;text-decoration:underline}
+.river-map-list section{margin-bottom:26px}
+.river-map-list h2{display:flex;align-items:center;gap:9px;margin:0 0 6px;font:500 15px Georgia,serif;color:var(--deep-water);text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:800}
+.river-map-list .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.river-map-list ul{list-style:none;margin:0;padding:0;border-top:1px solid rgba(18,62,71,.14)}
+.river-map-list li{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid rgba(18,62,71,.14)}
+.river-map-list li.active{background:rgba(57,124,139,.07)}
+.river-map-list button{flex:1;min-width:0;text-align:left;border:0;background:none;cursor:pointer;padding:12px 4px;color:var(--ink);font:inherit}
+.river-map-list strong{display:block;font:18px Georgia,serif}
+.river-map-list small{display:block;margin-top:3px;color:#6c7975;font-size:13px;line-height:1.5}
+.river-map-list li:hover strong{color:var(--rust)}
+.river-map-list li>a{flex:none;font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--rust);white-space:nowrap}
+
+@media(max-width:860px){
+  .river-map{grid-template-columns:1fr;gap:16px}
+  .river-map-canvas{position:static;height:min(52vh,380px)}
+  .river-map-list{max-height:none;overflow:visible}
+}
+
+/* Icon pins, a legend and the search over the place list. */
+.map-pin{cursor:pointer;line-height:0;filter:drop-shadow(0 2px 3px rgba(12,51,64,.28))}
+.map-pin-small{opacity:.9}
+.map-pin-small:hover{opacity:1}
+.map-legend{position:absolute;left:12px;bottom:12px;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:6px 13px;padding:8px 12px;border-radius:8px;background:rgba(255,253,247,.94);border:1px solid rgba(18,62,71,.14);font-size:11px;font-weight:700;color:#4b5a56;box-shadow:0 3px 12px rgba(12,51,64,.12)}
+.map-legend span{display:inline-flex;align-items:center;gap:5px}
+.map-legend-toggle{display:inline-flex;align-items:center;gap:6px;cursor:pointer;padding-left:11px;border-left:1px solid rgba(18,62,71,.16)}
+.map-legend-toggle input{accent-color:var(--river);width:14px;height:14px}
+.river-map-search{width:100%;margin:0 0 18px;border:1px solid #d7d0c3;border-radius:9px;background:var(--paper);color:var(--ink);padding:11px 14px;font:15px inherit}
+.river-map-search:focus{outline:2px solid var(--rust);outline-offset:1px}
+.river-map-hint{margin:0 0 8px;font-size:12px;line-height:1.5}
+@media(max-width:860px){.map-legend{left:8px;right:8px;bottom:8px;font-size:10px;gap:5px 10px}}

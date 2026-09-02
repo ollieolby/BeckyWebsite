@@ -142,6 +142,8 @@ async function ingestDocument(doc) {
   const row = {
     title: doc.title,
     notes: doc.notes,
+    summary: doc.summary ?? '',
+    doc_kind: doc.doc_kind ?? 'manual',
     asset_id: assetId(doc.asset),
     storage_path: storagePath,
     mime_type: doc.mime_type,

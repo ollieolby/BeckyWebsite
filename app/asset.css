@@ -29,3 +29,32 @@ a.asset-doc:hover{border-color:var(--rust)}
 .asset-problem header small{color:#7d8a85;font-size:12px;margin-left:auto}
 .asset-problem p{margin:4px 0;font-size:14px;line-height:1.5}
 .asset-places{margin-top:14px}
+
+/* The document library: grouped, searchable, and keyed on one summary line so
+   the rows stay even however much is written about a document. */
+.asset-signin{margin-top:14px;padding:12px 16px;border:1px solid rgba(18,62,71,.18);border-radius:9px;background:var(--paper);font-size:14px;max-width:60ch}
+.asset-signin a{color:var(--rust);font-weight:700;text-decoration:underline}
+
+.library-controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:22px}
+.library-search{flex:1;min-width:min(100%,260px);border:1px solid #d7d0c3;border-radius:9px;background:var(--paper);color:var(--ink);padding:11px 14px;font:15px inherit}
+.library-search:focus{outline:2px solid var(--rust);outline-offset:1px}
+.library-filters{display:flex;flex-wrap:wrap;gap:7px}
+.library-filters button{display:inline-flex;align-items:center;gap:6px;border:1px solid #d7d0c3;border-radius:999px;background:var(--paper);color:#4b5a56;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer}
+.library-filters button span{color:#8a938f;font-weight:800}
+.library-filters button:hover{border-color:var(--rust);color:var(--rust)}
+.library-filters button.on{background:var(--deep-water);border-color:var(--deep-water);color:#fff}
+.library-filters button.on span{color:rgba(255,255,255,.62)}
+
+.library-group{margin-bottom:24px}
+.library-group h3{margin:0 0 4px;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#7a8783}
+.library-group ul{list-style:none;margin:0;padding:0;border-top:1px solid rgba(18,62,71,.14)}
+.library-group li{display:flex;align-items:center;gap:16px;padding:14px 2px;border-bottom:1px solid rgba(18,62,71,.14)}
+.library-doc{flex:1;min-width:0}
+.library-doc strong{display:block;font:19px Georgia,serif;color:var(--deep-water)}
+.library-doc strong em{font-style:normal;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#8a938f}
+.library-doc p{margin:3px 0 0;color:#5c6b66;font-size:14px;line-height:1.5;max-width:70ch}
+.library-doc small{display:block;margin-top:5px;color:#8a938f;font-size:12px}
+.library-actions{flex:none}
+.library-actions a{font-size:12px;font-weight:800;letter-spacing:.05em;color:var(--rust);white-space:nowrap}
+.library-group li:hover .library-doc strong{color:var(--rust)}
+@media(max-width:600px){.library-group li{flex-direction:column;align-items:flex-start;gap:8px}}

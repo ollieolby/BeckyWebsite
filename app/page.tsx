@@ -2,7 +2,6 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { Anchor, Waterline, DutchBarge, ShepherdsHut, Speedboat } from './marks';
 import AskBecky from './ask-becky';
-import PlacesMap from './places-map';
 import RiverStatus from './river-status';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
@@ -14,7 +13,7 @@ const sections = [
 
 const quickLinks = [
   ['Ask Becky', 'Answers from our manuals, notes and the live river', '/chat'],
-  ['The river map', 'Moorings, pubs, cafés and useful stops', '#map'],
+  ['The river map', 'Moorings, pubs, cafés and useful stops', '/map'],
   ['Add information', 'Upload a manual or write down what you know', '/add-information'],
 ];
 
@@ -59,13 +58,6 @@ export default async function Home() {
             <a href={href} key={title}><span className="quick-icon">{title.charAt(0)}</span><span><strong>{title}</strong><small>{description}</small></span><b>↗</b></a>
           ))}
         </div>
-      </section>
-
-      <section className="map-section" id="map">
-        <div className="map-section-heading">
-          <h2>Explore the river map</h2>
-        </div>
-        <PlacesMap />
       </section>
 
       <footer id="manuals"><span className="brand-mark inverse">B</span><p>Made for the crews of Becky, Cormorant &amp; Drakar.</p><span className="footer-position"><Anchor size={15} /> Bourne End · River Thames</span></footer>
