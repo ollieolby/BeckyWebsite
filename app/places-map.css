@@ -3,10 +3,9 @@
 /* The river map page: the map and the list of places side by side, so
    choosing something in the list moves the map to it. */
 .map-page{min-height:100dvh;background:var(--paper);display:flex;flex-direction:column}
-.map-page-intro{max-width:1220px;width:100%;margin:0 auto;padding:clamp(30px,4vw,52px) clamp(18px,4vw,40px) clamp(20px,3vw,30px)}
+.map-page-intro{max-width:1220px;width:100%;margin:0 auto;padding:clamp(30px,4vw,52px) clamp(18px,4vw,40px) clamp(16px,2vw,22px)}
 .map-page-intro .hero-mark{margin:0 0 14px}
-.map-page-intro h1{font:500 clamp(32px,4vw,48px)/1.06 Georgia,serif;letter-spacing:-.03em;color:var(--deep-water);margin:0 0 10px}
-.map-page-intro p{max-width:56ch;color:#60706b;font:16px/1.6 Georgia,serif;margin:0}
+.map-page-intro h1{font:500 clamp(32px,4vw,48px)/1.06 Georgia,serif;letter-spacing:-.03em;color:var(--deep-water);margin:0}
 
 /* Not flex:1 - stretching this to fill the viewport left a few hundred pixels
    of dead space under both columns on a tall screen. */

@@ -68,7 +68,6 @@ export default async function AssetPage({ params }: { params: Promise<{ asset: s
       <section className="asset-hero">
         <Anchor size={24} className="hero-mark" />
         <h1>{asset.name}</h1>
-        <p>{asset.description}. Manuals, guides and hard-won knowledge, kept in one place.</p>
         {!user && (
           <p className="asset-signin">
             Some documents are family-only and are hidden while you are signed out.{' '}

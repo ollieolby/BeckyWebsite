@@ -22,7 +22,6 @@ export default function MapPage() {
       <div className="map-page-intro">
         <Anchor size={24} className="hero-mark" />
         <h1>The river map</h1>
-        <p>Every mooring, pub, café, shop and fuel stop the two families have saved, from Becky&rsquo;s home reach outwards.</p>
       </div>
 
       <RiverMap />
