@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { THAMES_LOCKS } from './thames-locks';
 import { fetchRiverLevel, fetchRiverConditions } from './river-data';
+import { figureTerms, rankFigures } from './figure-search';
 
 // Where the boats live: on the Marlow–Cookham reach near Bourne End.
 // kmBelowMarlow is approximate — adjust it when the exact mooring is measured.
@@ -154,6 +155,21 @@ export const BECKY_TOOL_DEFINITIONS = [
   },
   {
     type: 'function' as const,
+    name: 'find_figure',
+    description: 'Find a photograph or diagram from the family\'s manuals and send it to the reader. The manuals are full of pictures of specific switches, valves, panels and fittings, and a picture is usually the fastest answer to "where is the ...", "which switch", "what does it look like" or "show me". ALWAYS use this when the reader asks to be shown something, and whenever retrieved manual text mentions a figure slug. Returns an image_url to embed in the answer as Markdown.',
+    strict: false,
+    parameters: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'What the reader wants to see, in their own words, e.g. "the switch that starts the generator" or "weed hatch".' },
+        slug: { type: 'string', description: 'Exact figure slug (e.g. "becky-manual-fig-05") when the retrieved manual text names one. Use instead of query.' },
+        asset_slug: { type: 'string', enum: ['becky', 'cormorant', 'drakar'], description: 'Restrict to figures for this boat or the garden. Omit to search all.' },
+      },
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'function' as const,
     name: 'get_river_level',
     description: 'Get the live river level at the Cookham Lock gauge (the home reach), with the gauge\'s typical range. Reported every 15 minutes by the Environment Agency. Use for "how high is the river", "is the river up" and before-trip checks.',
     strict: false,
@@ -290,6 +306,73 @@ async function assetIdFromSlug(supabase: SupabaseClient, slug: unknown): Promise
   return data?.id ?? null;
 }
 
+
+type FigureRow = {
+  slug: string; label: string; caption: string; section: string;
+  keywords: string[]; notes: string; storage_path: string; priority: number;
+  documents: { title: string } | { title: string }[] | null;
+};
+
+async function findFigures(
+  supabase: SupabaseClient,
+  args: { query?: unknown; slug?: unknown; asset_slug?: unknown },
+) {
+  let query = supabase
+    .from('document_figures')
+    .select('slug,label,caption,section,keywords,notes,storage_path,priority,documents(title)')
+    // Withheld figures are withheld for a reason - a superseded drawing, or
+    // page furniture. Filtered here as well as by RLS so that an editor, who
+    // can read them, still never has one sent as an answer.
+    .eq('is_published', true)
+    .limit(200);
+
+  const slug = typeof args.slug === 'string' ? args.slug.trim() : '';
+  if (slug) query = query.eq('slug', slug);
+  if (typeof args.asset_slug === 'string' && args.asset_slug) {
+    const { data: asset } = await supabase.from('assets').select('id').eq('slug', args.asset_slug).maybeSingle();
+    if (!asset) return { figures: [] };
+    query = query.eq('asset_id', asset.id);
+  }
+
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  const rows = (data ?? []) as unknown as FigureRow[];
+
+  let chosen = rows;
+  if (!slug) {
+    const wanted = String(args.query ?? '');
+    if (!figureTerms(wanted).length) {
+      return { error: 'Say what the reader wants to see, or pass an exact figure slug.' };
+    }
+    chosen = rankFigures(rows, wanted);
+  }
+
+  if (!chosen.length) {
+    return { figures: [], note: 'No figure matches. Say so rather than describing a picture you have not seen.' };
+  }
+
+  // Signed rather than public: the figures bucket is private because these are
+  // interior photographs of a home. An hour outlives any chat.
+  const figures = [];
+  for (const row of chosen) {
+    const { data: signed } = await supabase.storage.from('figures').createSignedUrl(row.storage_path, 3600);
+    const document = Array.isArray(row.documents) ? row.documents[0] : row.documents;
+    figures.push({
+      slug: row.slug,
+      label: row.label,
+      caption: row.caption,
+      section: row.section,
+      from_document: document?.title ?? '',
+      notes: row.notes || undefined,
+      image_url: signed?.signedUrl ?? null,
+    });
+  }
+  return {
+    figures,
+    how_to_show: 'Embed the best match in the answer as Markdown: ![label](image_url). Show at most two, and say which document and section each came from.',
+  };
+}
+
 export async function runBeckyTool(name: string, args: Record<string, unknown>, supabase: SupabaseClient, userId: string): Promise<string> {
   if (name === 'plan_thames_journey') return JSON.stringify(planJourney(args));
   if (name === 'estimate_drakar_fuel') return JSON.stringify(estimateDrakarFuel(args));
@@ -329,6 +412,7 @@ export async function runBeckyTool(name: string, args: Record<string, unknown>, 
     if (error) return JSON.stringify({ error: `Could not save the guide (${error.message}). The user may need editor access.` });
     return JSON.stringify({ saved: data, note: 'Published. It can be edited or unpublished in the family area.' });
   }
+  if (name === 'find_figure') return JSON.stringify(await findFigures(supabase, args));
   if (name === 'get_river_level') return JSON.stringify(await fetchRiverLevel());
   if (name === 'get_river_conditions') {
     const conditions = await fetchRiverConditions();

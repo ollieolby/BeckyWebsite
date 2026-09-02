@@ -28,7 +28,7 @@ export default async function Home() {
     <main>
       <header className="site-header">
         <a className="brand" href="#top" aria-label="Becky home"><span className="brand-mark">B</span><span>BECKY</span></a>
-        <nav aria-label="Main navigation"><a href="#vessels">The boats</a><a href="#explore">Explore</a><Link href="/chat">Ask Becky</Link><a href="#add-information">Add information</a></nav>
+        <nav aria-label="Main navigation"><a href="#vessels">The boats</a><a href="#explore">Explore</a><Link href="/chat">Ask Becky</Link><Link href="/add-information">Add information</Link></nav>
         <Link className="ask-small" href="/admin">{signedInName ? `Hi, ${signedInName}` : 'Family area'} <span>✦</span></Link>
       </header>
 
@@ -80,12 +80,12 @@ export default async function Home() {
           <p className="kicker">Keep our knowledge growing</p>
           <h2>Add something useful</h2>
           <p>Found a good mooring? Learnt how something aboard works? Upload it while it’s fresh, so both families can find it next time.</p>
-          <Link className="add-primary" href="/admin">Add information <span>→</span></Link>
+          <Link className="add-primary" href="/add-information">Add information <span>→</span></Link>
         </div>
         <div className="add-options">
-          <Link href="/admin"><span>01</span><strong>Upload a manual</strong><small>Add a PDF or practical document</small><b>→</b></Link>
-          <Link href="/admin"><span>02</span><strong>Save a place</strong><small>Paste a Maps link and add our notes</small><b>→</b></Link>
-          <Link href="/admin"><span>03</span><strong>Share a useful note</strong><small>Capture family knowledge and checklists</small><b>→</b></Link>
+          <Link href="/add-information"><span>01</span><strong>Upload a manual</strong><small>Add a PDF or practical document</small><b>→</b></Link>
+          <Link href="/add-information"><span>02</span><strong>Save a place</strong><small>Paste a Maps link and add our notes</small><b>→</b></Link>
+          <Link href="/add-information"><span>03</span><strong>Share a useful note</strong><small>Capture family knowledge and checklists</small><b>→</b></Link>
         </div>
       </section>
 

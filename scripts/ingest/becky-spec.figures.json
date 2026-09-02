@@ -1,0 +1,11 @@
+[
+{"figure_no":1,"media":"word/media/image1.jpeg","section":"Replica Luxemotor \"Becky\"",
+ "label":"Becky under way on the Thames","keywords":["Becky","photo","exterior","what does Becky look like","luxemotor","barge","wheelhouse","hull","cream","green","red","bow"],
+ "caption":"Colour photograph of Becky under way on a wooded reach of the Thames, seen from the bow quarter: dark hull with red rubbing strakes, cream superstructure with arched windows, name 'Becky' on the bow, and the mahogany wheelhouse aft."},
+
+{"figure_no":2,"media":"word/media/image2.emf","section":"LAYOUT OF BECKY",
+ "label":"General arrangement drawing - LAYOUT OF BECKY","keywords":["layout","general arrangement","GA","plan","deck plan","cabin layout","where is the","floor plan"],
+ "caption":"The general arrangement drawing of Becky's layout from the January 2023 specification.",
+ "skip":"emf",
+ "notes":"Stored in the source document as a 6.5 MB Windows Enhanced Metafile (EMF), a vector format that cannot be rasterised with the tools available here. Not uploaded. To include it: open the spec in Word, right-click the layout drawing, Save as Picture as PNG, then drop the file at scripts/ingest/media/becky-spec-fig-02.png and re-run the ingest."}
+]

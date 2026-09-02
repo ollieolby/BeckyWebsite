@@ -1,0 +1,73 @@
+{
+  "source_dir": "~/Downloads/Becky",
+  "documents": [
+    {
+      "key": "becky-manual",
+      "file": "Instruction Manual for Becky.docx",
+      "title": "Instruction Manual for Becky",
+      "asset": "becky",
+      "kind": "docx",
+      "figures": "becky-manual.figures.json",
+      "is_published": false,
+      "notes": "The family's own practical how-to for running Becky: stopping her sinking and overheating, starting the three diesel engines, cruising, mooring, electrics, batteries, heating and hot water, bathroom, tanks, fuel, the stove and emergency kit. 34 photographs and diagrams, indexed individually as figures. Two sections are unfinished in the source - 'Settling in for Winter' says 'Check with James' and 'Anchor' is left as question marks, so the manual has no laying-up or anchoring procedure. The stored copy has its photographs downscaled to 1600px so it fits Supabase's upload limit; the figures are extracted separately at the same size, and the untouched 58 MB original is not held here.",
+      "figure_priority": 0,
+      "slim": true
+    },
+    {
+      "key": "becky-spec",
+      "file": "Becky spec Jan 2023.docx",
+      "title": "Becky specification (January 2023)",
+      "asset": "becky",
+      "kind": "docx",
+      "figures": "becky-spec.figures.json",
+      "is_published": false,
+      "notes": "Sales specification for Becky, a replica Luxemotor built by Delta Marine Services, Warwick in 2000. 19.81m x 3.89m x 0.9m draft, air draught 2.74m (min 2.06m). Perkins M135 engine, 10 kVA Vetus generator, Vetus 3kW inverter/charger, Vetus 130 kgf bow thruster, Eberspacher heating with 6 radiators, Morso Squirrel stove (2021). Tanks: 1,600 L main diesel, 550 L aux diesel, 1,350 L water, 600 L waste. Written for sale with a mooring at Poplar Dock Marina, Canary Wharf - that mooring detail is historical and no longer applies now she is near Bourne End.",
+      "figure_priority": 2
+    },
+    {
+      "key": "becky-bss",
+      "file": "BSSER-533496-26-Becky-04-06-2026.docx",
+      "title": "BSS examination report BSSER-533496/26 (June 2026)",
+      "asset": "becky",
+      "kind": "docx",
+      "figures": null,
+      "is_published": false,
+      "notes": "Boat Safety Scheme examination report for Becky, reg. 505602, navigation authority Canal & River Trust, private category. Examined 04/06/2026 by Chris Pengilley of Bourne End (PIN 460). Passed all applicable requirements; certificate expires 03/06/2030. No warning notice issued and the examination was not terminated. Diesel, solid fuel, DC and AC electrical noted on board; no petrol and no LPG. The only images in this document are the examiner's and the scheme's logos, so it has no figures.",
+      "skip_figures_reason": "Both embedded images are logos (BSS scheme mark and examiner signature block), not figures. Indexing them would let the assistant answer a request for a diagram with a logo.",
+      "figure_priority": 3
+    },
+    {
+      "key": "becky-electrical",
+      "file": "Becky Electrical drawings.pdf",
+      "title": "Becky electrical drawings",
+      "asset": "becky",
+      "kind": "pdf",
+      "figures": "becky-electrical.figures.json",
+      "is_published": false,
+      "notes": "Three sheets of electrical drawings for Becky. Sheet 1 is a drawn AC schematic showing the inverter, generator and shoreline supplies, two RCCBs, the SHORE/GEN changeover and the outgoing circuits. Sheet 2 is a hand-drawn 'Current Arrangement' block diagram. Sheet 3 is a hand-drawn 'Proposed Arrangement' that has been struck through with a red X - it is a rejected proposal and does NOT describe how Becky is wired. The PDF is scanned images with no machine-readable text, so nothing of it can be found by text search; use the figures instead.",
+      "figure_priority": 1
+    },
+    {
+      "key": "cormorant-spade-oak",
+      "file": "Spade Oak Notes.doc",
+      "title": "Cormorant and Spade Oak Reach - owner's notes",
+      "asset": "cormorant",
+      "kind": "doc",
+      "figures": null,
+      "is_published": false,
+      "notes": "Handover notes for Cormorant, Spade Oak Reach, Cookham SL6 9RQ, written by the previous owner (Andy). Covers the neighbours and the reach WhatsApp group, the three controlled gates and their shared keypad code, SSE/Scottish Power electricity and the smart meter in the brick pillar, borehole water and the pump under the carport, RBWM council tax, Friday bin day, the green-bin garden waste contract, the annual road fund, sewage options (Bourne End Marina or A Better Service tanker) and three fuel options (New Era tanker delivery, Bourne End Marina, or the fuel boat 'Merchant'). CONTAINS PRIVATE DATA: the gate access code and the personal mobile numbers of several named neighbours. Must stay unpublished, and the assistant should not volunteer the gate code or neighbours' numbers unless directly asked by a family member.",
+      "figure_priority": 3
+    },
+    {
+      "key": "notice-744c",
+      "file": "Notice 744C Ships,+aircraft+and+associated+services.pdf",
+      "title": "HMRC Notice 744C - Ships, aircraft and associated services (September 2005)",
+      "asset": "becky",
+      "kind": "pdf",
+      "figures": null,
+      "is_published": true,
+      "notes": "HMRC VAT notice on the zero-rating of ships. Relevant to Becky's VAT position, and the answer in it is negative: para 2.3 defines a 'qualifying ship' as one of not less than 15 gross tons AND neither designed nor adapted for recreation or pleasure; para 2.6 says motor cruisers, powerboats and yachts cannot qualify even over 15 tons; para 2.7 says intended residential use makes no difference, and a vessel able to cruise rivers or canals rather than being solely residential accommodation is not a qualifying ship; para 2.8 offers a houseboat route only for boats NOT capable of self-propulsion, and points to Notice 701/20. Becky is self-propelled and cruises, so she is not a qualifying ship under this notice. TWO CAVEATS. First, this notice is dated September 2005 and has since been superseded by HMRC - treat it as historical background, never quote it as the current rules, and tell the reader to check the current notice. Second, it does NOT govern the 'no VAT on the main engine diesel' point in the instruction manual: fuel for propulsion versus domestic use is the red diesel duty declaration regime, a different set of rules entirely.",
+      "figure_priority": 4
+    }
+  ]
+}

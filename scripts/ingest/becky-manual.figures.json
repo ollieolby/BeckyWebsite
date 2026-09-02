@@ -1,0 +1,141 @@
+[
+{"figure_no":1,"media":"word/media/image1.png","section":"Stop her sinking",
+ "label":"Stern gland greaser","keywords":["stern gland","greaser","grease","stern tube","packing gland","stuffing box","prop shaft seal","dripping","water coming in","leak","sinking","back bedroom","stern locker"],
+ "caption":"In the stern locker, looking down at the weed hatch. The green circle marks the greaser to the right of the hatch cover - twist it clockwise after a day's cruising until the dripping in the back bedroom stops.",
+ "notes":"Same photograph as figure 8, annotated differently. Here the circle is on the greaser; in figure 8 it is on the weed hatch cover."},
+
+{"figure_no":2,"media":"word/media/image2.png","section":"Stop her engines overheating",
+ "label":"Raw water strainers and the alternative intake lever","keywords":["strainer","filter","raw water filter","water filter","cooling water","overheating","engine room","white switch","white lever","intake","clean the filters","black seals"],
+ "caption":"Two clear-topped raw water strainers side by side on the engine room bulkhead, with the white lever valve for the alternative intake at the bottom left. Unscrew the tops to empty the plastic filters, keeping the black seals."},
+
+{"figure_no":3,"media":"word/media/image3.png","section":"Stop her engines overheating",
+ "label":"Side intake valve between the tanks","keywords":["intake valve","side intake","seacock","between the tanks","alternative intake","cooling water","overheating","blocked intake"],
+ "caption":"The second of the two valves to switch when the rear intakes are blocked, circled in green: a lever valve on the pipework between the tanks on the starboard side, above the water pumps and the blue accumulators."},
+
+{"figure_no":4,"media":"word/media/image4.png","section":"Starting her engines",
+ "label":"Main engine throttle and gear lever","keywords":["throttle","gear lever","morse control","neutral","disengage gearbox","wheelhouse","ahead astern","rev"],
+ "caption":"The chrome throttle/gear lever on the wheelhouse console, with a green arrow pointing to it. Pull it out to the right to disengage the gearbox and put her in neutral before starting."},
+
+{"figure_no":5,"media":"word/media/image5.png","section":"Starting her engines",
+ "label":"Main engine start panel (Perkins Sabre)","keywords":["start panel","starting","ignition","heat switch","glow plug","stop button","perkins","sabre","engine panel","gauges","tachometer","won't start"],
+ "caption":"The black Perkins Sabre instrument panel: gauges and tachometer, with the HEAT and ON toggle switches at the right and the STOP button below them. Switch ON, hold HEAT up a few seconds, then pull HEAT towards you to crank."},
+
+{"figure_no":6,"media":"word/media/image6.png","section":"Cruising (Driving)",
+ "label":"Rudder angle indicator","keywords":["rudder","rudder indicator","rudder angle","centre the rudder","steering","amidships","vetus"],
+ "caption":"The Vetus RUDDER gauge on the wheelhouse console, reading zero with the needle straight up - rudder centred. The red tape on the steering wheel should be at the top to match."},
+
+{"figure_no":7,"media":"word/media/image7.png","section":"Cruising (Driving)",
+ "label":"Bow thruster control","keywords":["bow thruster","thruster","vetus","joystick","mooring","parking","manoeuvring","green button"],
+ "caption":"The Vetus BOW-THRUSTER panel: a green ON button with ON/OFF markings and the sideways rocker joystick below. For moving the bow at slow speed, not useful at cruising speed."},
+
+{"figure_no":8,"media":"word/media/image8.png","section":"Propeller Cleaning",
+ "label":"Weed hatch in the stern locker","keywords":["weed hatch","propeller","prop","weed","rubbish","fouled prop","loss of power","knife","stern locker","clearing the prop"],
+ "caption":"The same stern locker as figure 1, with the green circle now around the weed hatch cover itself. Open it to reach the propeller - engine off first.",
+ "notes":"Same photograph as figure 1, annotated differently."},
+
+{"figure_no":9,"media":"word/media/image9.png","section":"Mooring (aka Parking)",
+ "label":"Long fender against mooring posts","keywords":["fender","fenders","long black fender","mooring posts","piles","bow locker","protecting the hull","mooring","parking"],
+ "caption":"A long black ladder-style fender hung vertically between Becky's hull and a timber mooring post, sitting parallel to the water and covering the outermost part of the hull. These are stored in the bow locker."},
+
+{"figure_no":10,"media":"word/media/image10.png","section":"Electrics",
+ "label":"Main electrical distribution panel","keywords":["distribution panel","switch panel","breakers","RCB","RCCB","fuse board","electrics","turn on the electrics","DC power","AC power","24V","12V","240V","inverter","ship shore","shore","gen","wheelhouse"],
+ "caption":"The glass-fronted panel in the wheelhouse. Left side is D.C. POWER with amps/volts meters and labelled breakers; right side is A.C. POWER with volts, warning lamps, the INVERTER and SHIP/SHORE selectors, and rocker switches for SHORE and GEN. This is where the three loops are switched on and off."},
+
+{"figure_no":11,"media":"word/media/image11.png","section":"Electrics",
+ "label":"Fridge switch","keywords":["fridge","refrigerator","isolator","switch off the fridge","leaving the boat","galley","off power"],
+ "caption":"The local switch on the bulkhead directly above the fridge in the galley. Switch it off when leaving Becky off power.",
+ "notes":"Not labelled in the photograph; identified from its position and the surrounding text. The freezer switch in figure 12 is explicitly labelled."},
+
+{"figure_no":12,"media":"word/media/image12.png","section":"Electrics",
+ "label":"Freezer switch (labelled FREEZER)","keywords":["freezer","isolator","switch off the freezer","leaving the boat","galley","off power","socket"],
+ "caption":"A rocker switch with an engraved FREEZER label, above a switched 13 A socket with the freezer plugged in. Switch it off when leaving Becky off power."},
+
+{"figure_no":13,"media":"word/media/image13.png","section":"Charging the Batteries",
+ "label":"Inverter/charger switch (Victron Phoenix MultiPlus)","keywords":["inverter","charger","inverter charger","victron","phoenix","multiplus","switch on the inverter","engine room","MPPT","solar controller","battery drain","24V 3000"],
+ "caption":"The blue Victron Phoenix MultiPlus 24/3000/70 inverter/charger mounted in the engine room, with the green circle around its on / off / charger-only switch. Leave it on while using the boat; turn it off only when leaving her unattended off grid. An MPPT solar charge controller is on the panel to its right."},
+
+{"figure_no":14,"media":"word/media/image14.png","section":"Charging the Batteries",
+ "label":"Generator control panel (Vetus)","keywords":["generator","genny","vetus","start the generator","on heat start","10 kVA","washing machine","cooker","big appliances"],
+ "caption":"The small Vetus generator panel with warning lamps for temperature, oil, coolant and battery, and four buttons along the bottom: green ON, a heat/glow-coil button, START and STOP. Press On, then Heat, then Start."},
+
+{"figure_no":15,"media":"word/media/image15.png","section":"Heating & Hot Water",
+ "label":"Heating and hot water controller (Eberspacher timer)","keywords":["heating","hot water","eberspacher","radiators","diesel heater","timer","central heating","turn the heating on","90 seconds","shut down"],
+ "caption":"The Eberspacher 7-day timer on the bulkhead, showing the clock. The green circle is around the heat button at the bottom right that turns the heating and hot water on and off. After switching off it takes about 90 seconds for the heater to shut down."},
+
+{"figure_no":16,"media":"word/media/image16.png","section":"Heating & Hot Water",
+ "label":"Immersion heater timer and boost dial (Grasslin ECOsave)","keywords":["immersion heater","immersion","boost","hot water","quick hot water","grasslin","ecosave","timer","electric water heating","generator running"],
+ "caption":"The Grasslin ECOsave immersion timer with its clock dial on the left and ON/OFF switch in the middle. The green circle marks the BOOST TIME dial - 15, 30, 60 or 120 minutes; choose the time and push the dial in. The generator needs to be running."},
+
+{"figure_no":17,"media":"word/media/image17.png","section":"Using the Bathroom",
+ "label":"Bathroom light and extractor fan switch","keywords":["bathroom","light","extractor fan","fan","switch","ceiling","heads"],
+ "caption":"The round stainless ceiling light in the bathroom, with the green circle around the small black push switch on the deckhead beside it that works the light and extractor fan. The extractor grille is visible below."},
+
+{"figure_no":18,"media":"word/media/image18.png","section":"Using the Bathroom",
+ "label":"Shower drain pump switch","keywords":["shower","shower pump","drain","plug hole","sump","below waterline","bathroom","water not draining"],
+ "caption":"A small black push switch circled in green on the dark blue panel at the base of the bathroom unit. The shower plug hole is below the waterline, so this pump has to be running to drain it."},
+
+{"figure_no":19,"media":"word/media/image19.png","section":"Using the Bathroom",
+ "label":"Toilet FILL and FLUSH buttons (Tecma)","keywords":["toilet","loo","heads","flush","fill","tecma","bathroom","how to flush"],
+ "caption":"The black Tecma control plate beside the toilet with two white buttons, FILL above and FLUSH below, and a green indicator lamp between them."},
+
+{"figure_no":20,"media":"word/media/image20.png","section":"Water, Waste and Fuel Tanks",
+ "label":"Tank level gauges","keywords":["tank levels","tank gauge","gauges","how full","how much water","water tank","waste tank","holding tank","fuel tank","wheelhouse stairs"],
+ "caption":"Three round gauges stacked on the pale green bulkhead by the stairs into the wheelhouse, each reading empty to 4/4. The middle is marked WATER and the bottom WASTE. The manual notes the gauges read conservatively.",
+ "notes":"The top gauge's label is not legible in the photograph; by elimination it is the fuel gauge, but that is inferred rather than read."},
+
+{"figure_no":21,"media":"word/media/image21.png","section":"Water, Waste and Fuel Tanks",
+ "label":"Deck filler key (Lee Sanitation)","keywords":["key","tank key","deck filler key","filler cap key","lee sanitation","wheelhouse cupboard","opening the tanks"],
+ "caption":"The white T-shaped Lee Sanitation deck-plate key, with four pegs along the crossbar that engage the filler cap. Stored in the wheelhouse cupboard and used for the water, diesel and pump-out caps."},
+
+{"figure_no":22,"media":"word/media/image22.png","section":"Water, Waste and Fuel Tanks",
+ "label":"Water deck filler being opened","keywords":["water filler","deck fill","water tank","filling with water","bow","WATER cap","deck plate"],
+ "caption":"The black deck plate cast with WATER on the foredeck, with the Lee Sanitation key engaged in it to twist the inner cap out."},
+
+{"figure_no":23,"media":"word/media/image23.png","section":"Water, Waste and Fuel Tanks",
+ "label":"Blue drinking-water hose in the water filler","keywords":["blue hose","drinking water","potable water","filling the water tank","bow locker","hoses","banging sound","overfill"],
+ "caption":"The open WATER deck filler with a blue hose feeding into it. Blue hoses are for drinking water only - green are for river water and washing out the waste tanks. It bangs when nearly full and overflows near the starboard bow."},
+
+{"figure_no":24,"media":"word/media/image24.png","section":"Water, Waste and Fuel Tanks",
+ "label":"Pump-out deck fitting, closed","keywords":["pump out","pumpout","waste","holding tank","sewage","deck fitting","starboard side","service point","emptying the waste"],
+ "caption":"The closed black pump-out deck plate set into the starboard side deck, level with the gunwale and the river beyond."},
+
+{"figure_no":25,"media":"word/media/image25.png","section":"Water, Waste and Fuel Tanks",
+ "label":"Pump-out deck fitting being opened","keywords":["pump out","pumpout","waste","empty the waste","emptying the waste tank","holding tank","sewage","opening","key","service point","suction"],
+ "caption":"The same starboard deck plate, cast PUMP OUT, with the Lee Sanitation key engaged in the inner cap to open it for a service-point suction hose."},
+
+{"figure_no":26,"media":"word/media/image26.png","section":"Water, Waste and Fuel Tanks",
+ "label":"Pump switches: DIESEL TRANSFER, WASTE and DECK WASH","keywords":["waste pump","onboard pump out","empty the waste","emptying the waste tank","deck wash pump","diesel transfer pump","pump switches","push switches","transfer diesel","leisure tank","no suction pump"],
+ "caption":"Three black push switches in a row on the pale green bulkhead with engraved brass labels: DIESEL TRANSFER PUMP, WASTE PUMP and DECK WASH PUMP. The waste pump is Becky's own pump-out for service points that have no suction; the diesel transfer pump moves fuel from the main engine tank to the leisure tank."},
+
+{"figure_no":27,"media":"word/media/image27.png","section":"Water, Waste and Fuel Tanks",
+ "label":"Deck wash outlet and hose connector","keywords":["deck wash","washing the deck","river water","green hose","hose clip","hose connector","outlet","standpipe"],
+ "caption":"A hex-topped standpipe in the corner of the deck with a beige quick-release hose connector lying beside it. Use the green hoses from the bow locker on this - it draws river water."},
+
+{"figure_no":28,"media":"word/media/image28.png","section":"Fuel",
+ "label":"Diesel deck filler cap","keywords":["diesel","fuel","filler","deck fill","refuelling","main engine tank","port side","red diesel","VAT","350 gallons"],
+ "caption":"The black diesel deck plate with a square drive socket in the centre, and its curved chrome-edged nameplate reading DIESEL alongside. This is the main engine tank on the port side."},
+
+{"figure_no":29,"media":"word/media/image29.png","section":"The Stove",
+ "label":"The solid fuel stove (Morso Squirrel)","keywords":["stove","fire","morso","squirrel","solid fuel","wood burner","vents","top vent","bottom vent","stove fan","saloon","heating"],
+ "caption":"The black cast-iron Morso Squirrel stove in its hearth beside the stairs, with a heat-powered fan on the top plate. Leave the top vent open to keep the glass clear and regulate the fire on the bottom vent."},
+
+{"figure_no":30,"media":"word/media/image30.png","section":"The Stove",
+ "label":"Galvanised bin for hot coals and ash","keywords":["coals","hot coals","ash","ashes","bin","hod","emptying the stove","disposal","deck"],
+ "caption":"A lidded galvanised steel bin standing on the deck, used to put potentially hot coals and ash into."},
+
+{"figure_no":31,"media":"word/media/image31.png","section":"Other",
+ "label":"The BW key for river utilities","keywords":["BW key","watermate","british waterways","canal and river trust","CRT","lock key","utilities","waste disposal","water points","keys","cork float","rear bedroom cupboard"],
+ "caption":"A brass key and a key marked BW on a cork ball float. The BW key opens the utilities on the river - waste disposal, water points and locks. All the keys live in the cupboard in the rear bedroom."},
+
+{"figure_no":32,"media":"word/media/image32.png","section":"Other",
+ "label":"Emergency cassette toilet in the bow hatch","keywords":["emergency toilet","spare toilet","cassette toilet","portable toilet","porta potti","bow","external storage hatch","loo"],
+ "caption":"A white portable cassette toilet sitting in the red external storage hatch in the bow, with hoses coiled below it. It empties via a cassette."},
+
+{"figure_no":33,"media":"word/media/image33.png","section":"Other",
+ "label":"Portable emergency bilge pump","keywords":["bilge pump","emergency bilge pump","portable pump","flooding","taking on water","sinking","engine room","backup pump","green hose"],
+ "caption":"A white portable submersible pump with a green hose attached and its mains lead coiled around it, stored in the engine room. The backup for the main bilge pump, or for water in a part of the boat the main pump does not reach."},
+
+{"figure_no":34,"media":"word/media/image34.png","section":"Electrics - Overview","format":"png",
+ "label":"Electrical system overview diagram","keywords":["electrical overview","electrics","wiring","wired","how the electrics are wired","electrics diagram","schematic","block diagram","how the electrics work","charging","generator","shore power","solar","main engine","diode split charger","leisure batteries","starter batteries","inverter charger","AC 240V loop","DC 12V 24V loop"],
+ "caption":"A block diagram of Becky's electrical system. Generator, Shore Power, Solar Power and Main Engine feed in on the left; the Main Engine goes through a Diode Split Charger (28 A max) to the main engine starter batteries; Generator and Shore feed an Inverter/Charger (40 A max) and the generator starter battery; the Leisure Batteries sit in the middle and supply a second Inverter/Charger to the AC 240V loop (hob, immersion heater, washing machine, normal sockets) and the DC 12V and 24V loops (lights, instrument panel, pumps, radio, round plug sockets)."}
+]

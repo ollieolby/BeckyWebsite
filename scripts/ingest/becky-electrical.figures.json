@@ -1,0 +1,16 @@
+[
+{"figure_no":1,"pdf_page":1,"format":"png","section":"AC wiring schematic",
+ "label":"AC wiring schematic - inverter, generator and shoreline","keywords":["wiring diagram","schematic","AC wiring","240V","inverter","generator","shoreline","shore power","RCCB","RCB","changeover","SHORE GEN","sockets","charger","immersion heater","washing machine","hob","neutrals","circuit diagram"],
+ "caption":"The drawn AC schematic. Three supplies across the top - INVERTER, GENERATOR and SHORELINE, each with line and neutral. Two R.C.C.B units on the inverter side; changeover contactors marked SHORE and GEN below the generator and shoreline. Outgoing circuits at the bottom: SOCKETS 1, SOCKETS 2, SOCKETS 3 and AUX on one bank, CHARGER, IMM HEATER, WASHING MACHINE and HOB on the other, each with its neutrals."},
+
+{"figure_no":2,"pdf_page":2,"format":"png","section":"Current arrangement",
+ "label":"Current arrangement (hand-drawn block diagram)","keywords":["current arrangement","block diagram","hand drawn","how the electrics are wired","gen","shoreline","inverter charger","RCB","sockets","aux","oven","hob","charger","immersion heater","washing machine"],
+ "caption":"Hand-drawn sheet titled 'Current Arrangement'. Gen and Shoreline feed through a changeover into one RCB serving Charger, Imm heater, Washing machine and Hob. Inverter/charger feeds a second RCB serving Sockets 1, 2 and 3, Aux and Oven.",
+ "notes":"Hand-drawn and undated. It disagrees with figure 34 of the instruction manual, which shows the inverter/charger fed from the generator and shore rather than sitting on a separate leg. Worth confirming against the boat before relying on either."},
+
+{"figure_no":3,"pdf_page":3,"format":"png","section":"Proposed arrangement (rejected)",
+ "label":"Proposed arrangement - REJECTED, struck through","keywords":["proposed arrangement","rejected","superseded","not built","crossed out","struck through","do not follow"],
+ "caption":"Hand-drawn sheet titled 'Proposed Arrangement', showing Gen and Shoreline joining at a single point into one Inverter/Charger which then feeds all circuits. The whole sheet, and its title, are struck through with a heavy red X.",
+ "is_published":false,
+ "notes":"NOT the wiring of the boat. This proposal was crossed out in red on the original sheet, so it was considered and rejected. Kept on record only; excluded from retrieval so it can never be sent as an answer about how Becky is wired."}
+]

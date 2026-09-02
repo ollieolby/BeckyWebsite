@@ -1,1 +1,29 @@
 .auth-page,.admin-page{min-height:100vh;background:var(--cream)}.auth-page{display:grid;place-items:center;padding:24px}.login-card{width:min(460px,100%);text-align:center}.login-card .brand-mark{margin:0 auto 22px}.admin-panel{background:#fff;border:1px solid #ddd8cc;border-radius:10px;padding:28px;box-shadow:0 12px 36px rgba(23,62,57,.08)}.admin-panel h1,.admin-panel h2,.admin-page h1{font-family:Georgia,serif;font-weight:500}.admin-panel label{display:block;text-align:left;font-size:12px;font-weight:700;margin-top:17px}.admin-panel input,.admin-panel select,.admin-panel textarea{display:block;width:100%;margin-top:7px;padding:12px;border:1px solid #cfc9bd;border-radius:6px;background:#fff}.admin-panel button{margin-top:20px;padding:12px 17px;border:0;border-radius:6px;background:var(--rust);color:#fff;font-weight:800}.admin-page>header{height:76px;padding:0 clamp(24px,6vw,90px);display:flex;align-items:center;justify-content:space-between;background:var(--paper);border-bottom:1px solid #ddd8cc}.admin-page>header div{text-align:right;font-size:12px}.admin-page>header small{display:block;color:#78827f;text-transform:capitalize}.admin-page>section{max-width:1050px;margin:auto;padding:70px 24px}.admin-page>section>h1{font-size:48px;margin:0 0 12px}.admin-page>section>p{color:#65736f;max-width:620px}.admin-tabs{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:36px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.notice{margin-top:30px;padding:20px;border-left:4px solid var(--rust);background:#fff}.save-status{font-weight:700;color:var(--rust)}@media(max-width:760px){.admin-tabs{grid-template-columns:1fr}.admin-page>section>h1{font-size:38px}}
+
+/* Invite links. A live link is a key to everything, so the list leads with
+   status and makes withdrawing a one-click action. */
+.invites-panel{margin-top:38px;padding-top:28px;border-top:1px solid rgba(23,62,57,.16)}
+.invites-panel h2{font:500 26px Georgia,serif;margin:0 0 8px}
+.invites-intro{max-width:62ch;color:#60706b;font-size:14px;line-height:1.6;margin:0 0 20px}
+.invite-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;align-items:end;margin-bottom:18px}
+.invite-form label{display:grid;gap:5px;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#6c7975}
+.invite-form input,.invite-form select{border:1px solid #d7d0c3;border-radius:9px;background:var(--paper);color:var(--ink);padding:10px 12px;font-size:14px;text-transform:none;letter-spacing:normal}
+.invite-form button{border:0;border-radius:9px;background:var(--rust);color:#fff;font-weight:700;padding:11px 20px;font-size:14px;cursor:pointer;height:fit-content}
+.invite-form button:disabled{opacity:.5;cursor:default}
+.invite-message{padding:10px 14px;border-radius:9px;background:var(--paper);border:1px solid rgba(23,62,57,.15);font-size:14px;margin:0 0 16px}
+.invite-empty{color:#6c7975;font-size:14px}
+.invite-list{list-style:none;margin:0;padding:0;border-top:1px solid rgba(23,62,57,.14)}
+.invite-list li{padding:14px 0;border-bottom:1px solid rgba(23,62,57,.14)}
+.invite-list li.spent{opacity:.55}
+.invite-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px}
+.invite-head strong{font:17px Georgia,serif}
+.invite-head small{color:#6c7975;font-size:12px}
+.invite-status{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;padding:2px 8px;border-radius:999px;border:1px solid}
+.invite-status.is-active{color:#2e7d32;border-color:rgba(46,125,50,.45);background:rgba(46,125,50,.08)}
+.invite-status.is-withdrawn,.invite-status.is-expired,.invite-status.is-used-up{color:#8a6a4a;border-color:rgba(138,106,74,.4);background:rgba(138,106,74,.08)}
+.invite-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:9px}
+.invite-actions code{flex:1;min-width:220px;overflow-wrap:anywhere;font-size:12px;background:var(--paper);border:1px solid rgba(23,62,57,.15);border-radius:8px;padding:7px 10px}
+.invite-actions button{border:1px solid #d7d0c3;border-radius:8px;background:var(--cream);color:var(--ink);padding:7px 14px;font-size:12px;cursor:pointer}
+.invite-actions button:hover{border-color:var(--rust);color:var(--rust)}
+.invite-actions button.danger:hover{border-color:#b3261e;color:#b3261e}
+@media(max-width:600px){.invite-actions code{min-width:100%}}

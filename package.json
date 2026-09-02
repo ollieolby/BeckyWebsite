@@ -11,7 +11,10 @@
     "start": "next start",
     "rag:create-store": "node scripts/create-vector-store.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "figures:test": "node --experimental-strip-types scripts/ingest/rank-test.mts",
+    "ingest": "node scripts/ingest/run.mjs",
+    "ingest:dry": "node scripts/ingest/run.mjs --dry-run"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.5",

@@ -44,6 +44,10 @@
 .chat-message ul,.chat-message ol{margin:0 0 8px;padding-left:20px}
 .chat-message li{margin:2px 0}
 .chat-message a{color:var(--rust);font-weight:700;text-decoration:underline}
+/* Figures the assistant sends from the manuals. Constrained in height so a
+   portrait phone photo cannot push the rest of the answer off the screen. */
+.chat-message img{display:block;max-width:100%;max-height:min(52vh,420px);width:auto;height:auto;margin:10px 0 4px;border-radius:10px;border:1px solid rgba(23,62,57,.18);background:var(--cream);object-fit:contain}
+.chat-message p>img:only-child{margin-bottom:0}
 .chat-message code{font:13px/1.4 ui-monospace,monospace;background:rgba(0,0,0,.05);padding:1px 4px;border-radius:4px}
 .chat-message table{border-collapse:collapse;margin:8px 0;width:100%;font-size:14px;display:block;overflow-x:auto}
 .chat-message th,.chat-message td{border:1px solid rgba(0,0,0,.15);padding:5px 9px;text-align:left}

@@ -24,11 +24,21 @@ export default function LoginPage() {
     setCooldown(30);
     setMessage('Sending your sign-in email…');
     try {
+      // shouldCreateUser:false so this page can only sign in an existing
+      // account. Open sign-up is also switched off in Supabase Auth, which is
+      // the check that actually holds: the anon key is public, so anything
+      // decided in the browser can be bypassed by calling the API directly.
+      // New people come in through an invite link, which is redeemed by
+      // /api/join using the service-role key.
       const { error } = await createSupabaseBrowserClient().auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: `${location.origin}/auth/callback` },
+        options: { shouldCreateUser: false, emailRedirectTo: `${location.origin}/auth/callback` },
       });
-      if (error) return setMessage(error.message);
+      if (error) {
+        return setMessage(/signups? not allowed|user not found|Signups not allowed for otp/i.test(error.message)
+          ? 'That address does not have an account. Ask a family member for an invite link.'
+          : error.message);
+      }
       setSent(true);
       setMessage('Email sent. Click the link, or type the code from the email below — the code works even when the link has “expired”.');
     } catch {
