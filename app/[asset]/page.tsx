@@ -36,7 +36,7 @@ export default async function AssetPage({ params }: { params: Promise<{ asset: s
   // Row-level security shapes all of these to the viewer: visitors get
   // published content only, family members see everything (and only they can
   // read the troubleshooting log at all).
-  const [{ data: documents }, { data: generalDocuments }, { data: guides }, { data: problems }, { data: figures }] = await Promise.all([
+  const [{ data: documents, error: documentsError }, { data: generalDocuments }, { data: guides }, { data: problems }, { data: figures }] = await Promise.all([
     supabase.from('documents').select('id,title,summary,notes,mime_type,size_bytes,created_at,doc_kind').eq('asset_id', asset.id).order('created_at', { ascending: false }),
     supabase.from('documents').select('id,title,summary,notes,mime_type,size_bytes,created_at,doc_kind').is('asset_id', null).order('created_at', { ascending: false }),
     supabase.from('guides').select('id,title,summary,body,updated_at').eq('asset_id', asset.id).order('updated_at', { ascending: false }),
@@ -79,7 +79,12 @@ export default async function AssetPage({ params }: { params: Promise<{ asset: s
 
       <section className="asset-section">
         <h2>Documents</h2>
-        <Library documents={library} assetName={asset.name} />
+        {documentsError
+          // Without this the page renders an empty library and a 200, which
+          // looks exactly like having no documents. A query that failed and a
+          // shelf that is genuinely bare must not look the same.
+          ? <p className="asset-error">The library could not be read: {documentsError.message}</p>
+          : <Library documents={library} assetName={asset.name} />}
       </section>
 
       <section className="asset-section">

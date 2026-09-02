@@ -58,3 +58,4 @@ a.asset-doc:hover{border-color:var(--rust)}
 .library-actions a{font-size:12px;font-weight:800;letter-spacing:.05em;color:var(--rust);white-space:nowrap}
 .library-group li:hover .library-doc strong{color:var(--rust)}
 @media(max-width:600px){.library-group li{flex-direction:column;align-items:flex-start;gap:8px}}
+.asset-error{padding:13px 16px;border:1px solid rgba(179,38,30,.35);border-radius:9px;background:rgba(179,38,30,.06);color:#8a2b22;font-size:14px;line-height:1.55;max-width:70ch}
