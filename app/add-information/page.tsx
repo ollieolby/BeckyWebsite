@@ -60,20 +60,18 @@ export default async function AddInformationPage() {
         </ol>
 
         <div className="ask-becky-callout">
-          <p className="kicker">Uploaded a manual?</p>
-          <h2>Ask Becky to read it for you</h2>
+          <h2>Or let Becky do it</h2>
           <p>
-            Say <em>&ldquo;I&rsquo;ve just uploaded the Webasto manual, can you read it?&rdquo;</em> and she will pull out
-            its photographs and diagrams and write a description of each one, so she can send you the right picture
-            when you ask where something is.
+            Ask Becky has an <strong>Add a manual</strong> button beside the message box. Give her the file there and
+            she reads it straight away: out come the photographs and diagrams, with a description of each one, so she
+            can send you the right picture when you ask where something is.
           </p>
           <ul>
             <li>Works on <strong>.docx</strong>, <strong>.pdf</strong>, <strong>.md</strong> and <strong>.txt</strong>. Old <strong>.doc</strong> files need saving as .docx first.</li>
             <li>She writes the descriptions by looking at each picture, so she sometimes gets one wrong. Nothing she writes is shown to anyone until a person approves it in the family area.</li>
-            <li>She cannot be sent a file in chat — upload it here first, then ask.</li>
           </ul>
           {user
-            ? <Link className="add-primary" href="/chat">Ask Becky <span>→</span></Link>
+            ? <Link className="add-primary" href="/chat">Add a manual in Ask Becky <span>→</span></Link>
             : <p className="add-note">Sign in first, then you can ask her.</p>}
         </div>
         {!user && (
