@@ -176,7 +176,7 @@ export default function RiverMap() {
   return (
     <div className="river-map">
       <div className="river-map-canvas">
-        <div ref={container} aria-label="Map of the family's saved places and the Thames locks" />
+        <div ref={container} className="map-surface" aria-label="Map of the family's saved places and the Thames locks" />
         <div className="map-legend">
           {['mooring', 'pub', 'cafe', 'shop', 'fuel'].map(key => (
             <span key={key}>
@@ -221,7 +221,6 @@ export default function RiverMap() {
                     <strong>{place.name}</strong>
                     {place.notes && <small>{place.notes}</small>}
                   </button>
-                  {place.google_maps_url && <a href={place.google_maps_url} target="_blank" rel="noreferrer">Directions ↗</a>}
                 </li>
               ))}
             </ul>
