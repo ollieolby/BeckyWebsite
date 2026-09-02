@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import type { RawFigure } from './extract';
+import type { RawFigure } from './extract.ts';
 
 // Proposing a label, caption and keywords for a figure by looking at it.
 //

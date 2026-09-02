@@ -1,6 +1,5 @@
 import { unzipSync, strFromU8 } from 'fflate';
 import sharp from 'sharp';
-import { createRequire } from 'node:module';
 
 // Server-side extraction, so the family can upload a manual from the site and
 // get labelled figures without anyone running a script on a Mac.
@@ -135,10 +134,16 @@ async function extractDocx(buffer: Buffer): Promise<Extracted> {
 
 // --- PDF -------------------------------------------------------------------
 
+// pdfjs wants a worker. There is no Worker in a serverless function, and
+// pointing it at a worker file by path does not survive bundling - the
+// resolved path comes back as a non-string and pdfjs rejects it with
+// "Invalid `workerSrc` type". Handing it the worker module on globalThis is
+// the supported way to run the worker on this thread instead, and needs no
+// path resolution at all.
 async function loadPdfjs() {
-  const require = createRequire(import.meta.url);
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-  pdfjs.GlobalWorkerOptions.workerSrc = require.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs');
+  const scope = globalThis as typeof globalThis & { pdfjsWorker?: unknown };
+  scope.pdfjsWorker ??= await import('pdfjs-dist/legacy/build/pdf.worker.mjs');
   return pdfjs;
 }
 

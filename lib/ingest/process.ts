@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { extractDocument, kindFromName, type RawFigure } from './extract';
-import { proposeCaption, fallbackCaption, type ProposedCaption } from './caption';
-import { renditionPathFor } from './paths';
+import { extractDocument, kindFromName, type RawFigure } from './extract.ts';
+import { proposeCaption, fallbackCaption, type ProposedCaption } from './caption.ts';
+import { renditionPathFor } from './paths.ts';
 
 // Reading an uploaded document: pull out its figures, describe each one, and
 // write the rendition that makes them findable.
