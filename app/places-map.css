@@ -10,10 +10,13 @@
 /* Not flex:1 - stretching this to fill the viewport left a few hundred pixels
    of dead space under both columns on a tall screen. */
 .river-map{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(310px,.9fr);gap:20px;max-width:1220px;width:100%;margin:0 auto;padding:0 clamp(18px,4vw,40px) clamp(36px,5vw,64px)}
-.river-map-canvas{position:sticky;top:16px;height:min(74vh,640px);border:1px solid rgba(18,62,71,.16);border-radius:10px;overflow:hidden;background:#e8e4dc}
+/* Safari will not composite a WebGL canvas that is being clipped by a rounded,
+   overflow-hidden ancestor - the map comes out blank. The radius is put on the
+   map surface itself instead, and the container promoted to its own layer. */
+.river-map-canvas{position:sticky;top:16px;height:min(74vh,640px);border:1px solid rgba(18,62,71,.16);border-radius:10px;background:#e8e4dc;isolation:isolate;transform:translateZ(0)}
 /* Only the map fills the box. This was `> div`, which also caught the legend
    and blew it up to the full size of the map. */
-.river-map-canvas .map-surface{position:absolute;inset:0}
+.river-map-canvas .map-surface{position:absolute;inset:0;border-radius:10px;overflow:hidden}
 
 .river-map-list{min-width:0;max-height:min(74vh,640px);overflow:auto;padding-right:4px}
 .river-map-note{color:#60706b;font-size:14px;line-height:1.6}
@@ -32,7 +35,7 @@
 
 @media(max-width:860px){
   .river-map{grid-template-columns:1fr;gap:16px}
-  .river-map-canvas{position:static;height:min(52vh,380px)}
+  .river-map-canvas{position:static;height:min(52vh,380px);transform:none}
   .river-map-list{max-height:none;overflow:visible}
 }
 
@@ -44,6 +47,7 @@
 .map-legend span{display:inline-flex;align-items:center;gap:5px}
 .map-legend-toggle{display:inline-flex;align-items:center;gap:6px;cursor:pointer;padding-left:11px;border-left:1px solid rgba(18,62,71,.16)}
 .map-legend-toggle input{accent-color:var(--river);width:14px;height:14px}
+.map-unavailable{position:absolute;inset:0;display:grid;place-items:center;margin:0;padding:24px;text-align:center;color:#4b5a56;font-size:14px;line-height:1.6}
 .river-map-search{width:100%;margin:0 0 18px;border:1px solid #d7d0c3;border-radius:9px;background:var(--paper);color:var(--ink);padding:11px 14px;font:15px inherit}
 .river-map-search:focus{outline:2px solid var(--rust);outline-offset:1px}
 .river-map-hint{margin:0 0 8px;font-size:12px;line-height:1.5}

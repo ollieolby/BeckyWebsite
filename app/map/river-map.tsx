@@ -60,6 +60,28 @@ const FROM_HOME = computeTimesFromHome();
 const locks = [...LOCKS].sort((a, b) =>
   (FROM_HOME.get(a.name)?.minutes ?? Infinity) - (FROM_HOME.get(b.name)?.minutes ?? Infinity));
 
+
+// Kept out of the effect so the failure path above reads clearly.
+function buildMap(container: HTMLDivElement) {
+  return new maplibregl.Map({
+    container,
+    center: HOME,
+    zoom: 12,
+    style: {
+      version: 8,
+      sources: {
+        osm: {
+          type: 'raster',
+          tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+          tileSize: 256,
+          attribution: '© OpenStreetMap contributors',
+        },
+      },
+      layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
+    },
+  });
+}
+
 export default function RiverMap() {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -67,6 +89,7 @@ export default function RiverMap() {
   const [places, setPlaces] = useState<Place[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [active, setActive] = useState<string | null>(null);
+  const [mapProblem, setMapProblem] = useState<string | null>(null);
   const [showLocks, setShowLocks] = useState(true);
   const [query, setQuery] = useState('');
 
@@ -82,18 +105,33 @@ export default function RiverMap() {
 
   useEffect(() => {
     if (!container.current || !places || mapRef.current) return;
-    const map = new maplibregl.Map({
-      container: container.current,
-      center: HOME,
-      zoom: 12,
-      style: {
-        version: 8,
-        sources: { osm: { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize: 256, attribution: '© OpenStreetMap contributors' } },
-        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
-      },
-    });
+
+    // MapLibre 5 and later need WebGL2, and a browser without it throws here.
+    // Left unhandled that is a silent grey rectangle, so catch it and say so
+    // rather than leaving the reader wondering. Deferred out of the effect
+    // body so it does not cascade a second render.
+    let map: maplibregl.Map;
+    try {
+      map = buildMap(container.current);
+    } catch (error) {
+      console.error('[river map] could not start', error);
+      queueMicrotask(() => setMapProblem(
+        'This browser could not draw the map. The list of places still works, and each one opens in Google Maps.',
+      ));
+      return;
+    }
+
     mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    map.on('error', event => {
+      console.error('[river map]', event.error?.message ?? event);
+    });
+
+    // A map created before its container has a height stays blank for ever;
+    // Safari resolves the height of a sticky, absolutely positioned box on a
+    // later pass than Chrome does, so tell the map whenever the box changes.
+    const observer = new ResizeObserver(() => map.resize());
+    observer.observe(container.current);
 
     const popup = (kind: string, name: string, lines: string[] = [], link?: string | null) => {
       const node = document.createElement('div');
@@ -136,7 +174,7 @@ export default function RiverMap() {
     const bounds = new maplibregl.LngLatBounds(HOME, HOME);
     for (const place of places) bounds.extend([place.longitude, place.latitude]);
     if (places.length) map.fitBounds(bounds, { padding: 80, maxZoom: 13.5, duration: 0 });
-    return () => { map.remove(); mapRef.current = null; markers.current = {}; };
+    return () => { observer.disconnect(); map.remove(); mapRef.current = null; markers.current = {}; };
   }, [places]);
 
   // Locks are useful but there are 44 of them; off by default on a small map
@@ -177,6 +215,7 @@ export default function RiverMap() {
     <div className="river-map">
       <div className="river-map-canvas">
         <div ref={container} className="map-surface" aria-label="Map of the family's saved places and the Thames locks" />
+        {mapProblem && <p className="map-unavailable">{mapProblem}</p>}
         <div className="map-legend">
           {['mooring', 'pub', 'cafe', 'shop', 'fuel'].map(key => (
             <span key={key}>
