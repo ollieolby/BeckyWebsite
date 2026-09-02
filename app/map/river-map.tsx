@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import * as maplibregl from 'maplibre-gl';
 import { THAMES_LOCKS } from '@/lib/thames-locks';
+import { Anchor } from '../marks';
 import { CATEGORY_COLOURS, CATEGORY_LABELS, CATEGORY_ICONS, markerElement } from './marker-icons';
 
 type Place = {
@@ -186,6 +187,11 @@ export default function RiverMap() {
     }
   }, [showLocks, places]);
 
+  function goHome() {
+    setActive(null);
+    mapRef.current?.flyTo({ center: HOME, zoom: 13, duration: 900 });
+  }
+
   function show(lng: number, lat: number, key: string) {
     setActive(key);
     mapRef.current?.flyTo({ center: [lng, lat], zoom: 15, duration: 900 });
@@ -216,6 +222,11 @@ export default function RiverMap() {
       <div className="river-map-canvas">
         <div ref={container} className="map-surface" aria-label="Map of the family's saved places and the Thames locks" />
         {mapProblem && <p className="map-unavailable">{mapProblem}</p>}
+        {!mapProblem && (
+          <button type="button" className="map-home" onClick={goHome} title="Back to the home mooring">
+            <Anchor size={15} /> Home
+          </button>
+        )}
         <div className="map-legend">
           {['mooring', 'pub', 'cafe', 'shop', 'fuel'].map(key => (
             <span key={key}>
