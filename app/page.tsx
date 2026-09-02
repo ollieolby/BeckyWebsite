@@ -1,20 +1,21 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
+import { Anchor, Waterline, DutchBarge, ShepherdsHut, Speedboat } from './marks';
 import AskBecky from './ask-becky';
 import PlacesMap from './places-map';
 import RiverStatus from './river-status';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 const sections = [
-  { name: 'Becky', eyebrow: 'Houseboat', text: 'Systems, safety, arrival and departure guides for life aboard.', accent: 'becky', icon: 'B' },
-  { name: 'Cormorant', eyebrow: 'The boat garden', text: 'Everything about the plot, sheds, utilities and looking after the land.', accent: 'cormorant', icon: 'C' },
-  { name: 'Drakar', eyebrow: 'Runaround boat', text: 'Launch notes, engine guide and the essentials for getting underway.', accent: 'drakar', icon: 'D' },
+  { name: 'Becky', eyebrow: 'Houseboat', text: 'Systems, safety, arrival and departure guides for life aboard.', accent: 'becky', Art: DutchBarge },
+  { name: 'Cormorant', eyebrow: 'The boat garden', text: 'Everything about the plot, sheds, utilities and looking after the land.', accent: 'cormorant', Art: ShepherdsHut },
+  { name: 'Drakar', eyebrow: 'Runaround boat', text: 'Launch notes, engine guide and the essentials for getting underway.', accent: 'drakar', Art: Speedboat },
 ];
 
 const quickLinks = [
-  ['Manuals & guides', 'Find instructions and original documents', '/becky'],
-  ['Places nearby', 'Pubs, cafés, shops and useful stops', '/cormorant'],
-  ['Mooring map', 'Saved spots, notes and local knowledge', '#map'],
+  ['Ask Becky', 'Answers from our manuals, notes and the live river', '/chat'],
+  ['The river map', 'Moorings, pubs, cafés and useful stops', '#map'],
+  ['Add information', 'Upload a manual or write down what you know', '/add-information'],
 ];
 
 export default async function Home() {
@@ -33,21 +34,18 @@ export default async function Home() {
       </header>
 
       <section className="hero" id="top">
+        <Anchor className="hero-mark" size={30} />
         <h1>Everything you need for <em>Becky</em> and beyond.</h1>
-        <p className="hero-copy">Guides, local knowledge and answers for our boats and garden — all in one place.</p>
         <AskBecky />
         <Suspense fallback={null}><RiverStatus /></Suspense>
+        <Waterline />
       </section>
 
       <section className="vessels" id="vessels">
-        <div className="section-heading">
-          <h2>Three places, one shared story</h2>
-          <p>Practical notes and hard-won knowledge, kept together for both families.</p>
-        </div>
         <div className="card-grid">
           {sections.map((section) => (
             <a className={`place-card ${section.accent}`} href={`/${section.accent}`} key={section.name}>
-              <div className="card-art"><span className="monogram">{section.icon}</span></div>
+              <div className="card-art"><section.Art /></div>
               <div className="card-copy"><p>{section.eyebrow}</p><h3>{section.name}</h3><span>{section.text}</span><b>Explore <i>→</i></b></div>
             </a>
           ))}
@@ -66,26 +64,11 @@ export default async function Home() {
       <section className="map-section" id="map">
         <div className="map-section-heading">
           <h2>Explore the river map</h2>
-          <p>Moorings, pubs, cafés, fuel and useful stops collected by both families.</p>
         </div>
         <PlacesMap />
       </section>
 
-      <section className="add-information" id="add-information">
-        <div className="add-information-copy">
-          <h2>Add something useful</h2>
-          <p>Found a good mooring? Learnt how something aboard works? Upload it while it’s fresh, so both families can find it next time.</p>
-          <Link className="add-primary" href="/add-information">Add information <span>→</span></Link>
-        </div>
-        <div className="add-options">
-          <Link href="/add-information"><strong>Upload a manual</strong><small>Add a PDF or practical document</small><b>→</b></Link>
-          <Link href="/add-information"><strong>Save a place</strong><small>Paste a Maps link and add our notes</small><b>→</b></Link>
-          <Link href="/add-information"><strong>Share a useful note</strong><small>Capture family knowledge and checklists</small><b>→</b></Link>
-          <Link href="/chat"><strong>Ask Becky to read a manual</strong><small>She pulls out its diagrams and describes each one</small><b>→</b></Link>
-        </div>
-      </section>
-
-      <footer id="manuals"><span className="brand-mark inverse">B</span><p>Made for the crews of Becky, Cormorant &amp; Drakar.</p><span className="footer-position">Bourne End · River Thames</span></footer>
+      <footer id="manuals"><span className="brand-mark inverse">B</span><p>Made for the crews of Becky, Cormorant &amp; Drakar.</p><span className="footer-position"><Anchor size={15} /> Bourne End · River Thames</span></footer>
     </main>
   );
 }

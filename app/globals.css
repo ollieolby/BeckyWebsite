@@ -29,16 +29,21 @@ nav a:hover::after{left:0;right:0}
 .sparkle{display:none}
 .ask-box input{padding-left:18px}
 
-.vessels{position:relative;background:var(--paper);padding-top:clamp(60px,7vw,84px)}
+.vessels{position:relative;background:var(--paper);padding-top:clamp(52px,6vw,72px)}
 .section-heading h2,.explore h2,.map-section-heading h2,.add-information-copy h2{color:var(--deep-water);letter-spacing:-.03em}
 
 /* Cards: one frame, one mark, a soft shadow that actually reads as depth. */
 .place-card{border:1px solid rgba(18,62,71,.14);border-radius:8px;box-shadow:0 1px 2px rgba(12,51,64,.05)}
 .place-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(12,51,64,.10)}
-.card-art{height:170px;background:#bb694e}
-.cormorant .card-art{background:#6b8a7c}
-.drakar .card-art{background:#4b7a8c}
-.monogram{width:72px;height:72px;border:1px solid rgba(255,255,255,.7);outline:0;font-size:34px;text-shadow:none}
+.card-art{height:176px;background:#c07352}
+.cormorant .card-art{background:#7a9585}
+.drakar .card-art{background:#5b8496}
+/* Each place is drawn rather than initialled. The art sits on its own colour
+   and is allowed to breathe; the card copy underneath does the naming. */
+.card-art{display:grid;place-items:center;padding:14px 18px}
+.place-art{width:100%;max-width:220px;height:auto;display:block}
+.place-card:hover .place-art{transform:translateY(-2px)}
+.place-art{transition:transform .25s ease}
 .card-copy{background:var(--paper)}
 .card-copy p{color:var(--rust)}
 .card-copy h3{color:var(--deep-water)}
@@ -66,3 +71,42 @@ button,a{transition:color .2s ease,background-color .2s ease,border-color .2s ea
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
 @media(max-width:760px){.site-header{height:64px}.brand-mark{width:34px;height:34px;font-size:17px}.hero{padding-top:52px}.card-art{height:150px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important}}
+
+/* The one nautical gesture, and the one authored moment.
+   A slow drift of water along the foot of the hero, with Becky pootling
+   through it. Two wave layers at different speeds and phases so the loop
+   never reads as a repeat, and the boat sits between them so the near wave
+   passes over her hull. Everything else on the page stays still. */
+.hero{position:relative;overflow:hidden;padding-bottom:clamp(104px,12vw,148px);border-bottom:0}
+.hero-mark{display:block;margin:0 auto 20px;color:var(--river);opacity:.9}
+/* The supporting sentences are gone, so the headings no longer share a row. */
+.section-heading,.map-section-heading{display:block}
+.hero .ask-box{margin-top:34px}
+
+.waterline{position:absolute;left:0;right:0;bottom:-1px;height:clamp(56px,7vw,84px);pointer-events:none}
+.waterline-layer{position:absolute;inset:0;display:block;width:200%;height:100%}
+.waterline-layer path{transform-origin:0 0;will-change:transform}
+.waterline-far path{fill:rgba(57,124,139,.11);animation:drift 38s linear infinite}
+.waterline-near path{fill:rgba(18,62,71,.16);animation:drift 24s linear infinite reverse}
+/* Four of the eight visible periods, so the strip lands where it began. */
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(-1200px)}}
+
+.boat{position:absolute;left:0;bottom:14px;width:96px;animation:sail 46s linear infinite}
+.boat-bob{animation:bob 3.4s ease-in-out infinite;transform-origin:50% 90%}
+.boat svg{display:block}
+/* Off one edge to off the other, so she never pops in or out mid-screen. */
+@keyframes sail{from{transform:translateX(calc(100vw + 40px))}to{transform:translateX(-150px)}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-5px) rotate(4.5deg)}}
+.boat-smoke circle{fill:rgba(18,62,71,.16);animation:puff 3.6s ease-out infinite}
+.boat-smoke circle:nth-child(2){animation-delay:1.2s}
+.boat-smoke circle:nth-child(3){animation-delay:2.4s}
+@keyframes puff{
+  0%{opacity:0;transform:translate(0,0) scale(.5)}
+  15%{opacity:.9}
+  100%{opacity:0;transform:translate(13px,-20px) scale(1.7)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .waterline-layer path,.boat,.boat-bob,.boat-smoke circle{animation:none}
+  .boat{transform:translateX(14vw)}
+}
