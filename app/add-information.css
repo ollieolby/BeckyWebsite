@@ -22,7 +22,7 @@
 .add-steps li.done strong,.join-steps li.done strong{color:#6c7975}
 
 .add-cta{margin:0 0 28px}
-.add-note{max-width:60ch;margin:26px 0 0;padding:13px 16px;border-left:3px solid var(--rust);background:var(--paper);font-size:14px;line-height:1.55;color:#4b5a56}
+.add-note{max-width:60ch;margin:26px 0 0;padding:14px 17px;border:1px solid rgba(18,62,71,.16);border-radius:9px;background:var(--paper);font-size:14px;line-height:1.55;color:#4b5a56}
 .add-note a{color:var(--rust);font-weight:700;text-decoration:underline}
 
 .join-form{display:grid;gap:9px;max-width:400px;margin:0 0 18px}
@@ -37,10 +37,19 @@
 @media(max-width:600px){.add-steps li,.join-steps li{grid-template-columns:34px 1fr;gap:12px}.join-form button{width:100%;text-align:center;justify-self:stretch}}
 
 /* Pointing people at the assistant for the part she does better than a form. */
-.ask-becky-callout{margin:34px 0 0;padding:24px clamp(18px,3vw,30px);border-radius:14px;background:var(--paper);border:1px solid rgba(23,62,57,.16);border-left:3px solid var(--rust)}
+.ask-becky-callout{margin:34px 0 0;padding:24px clamp(18px,3vw,30px);border-radius:12px;background:var(--paper);border:1px solid rgba(18,62,71,.16)}
 .ask-becky-callout h2{font:500 clamp(22px,2.6vw,30px)/1.15 Georgia,serif;margin:0 0 12px;letter-spacing:-.02em}
 .ask-becky-callout>p{max-width:60ch;color:#4b5a56;font:15px/1.65 Georgia,serif;margin:0 0 14px}
 .ask-becky-callout em{color:var(--ink)}
 .ask-becky-callout ul{margin:0 0 18px;padding-left:20px;max-width:62ch}
 .ask-becky-callout li{margin:6px 0;font-size:14px;line-height:1.55;color:#4b5a56}
 .ask-becky-callout .add-note{margin-top:0}
+
+/* The numbering is gone, so the row is title+description over one column
+   with the arrow beside it. Without this the old three-column track squeezed
+   each title into a 42px gutter, one word per line. */
+.add-options a{grid-template-columns:1fr auto;grid-template-rows:auto auto;column-gap:24px}
+.add-options strong{grid-column:1;grid-row:1}
+.add-options small{grid-column:1;grid-row:2}
+.add-options b{grid-column:2;grid-row:1/3;align-self:center}
+
