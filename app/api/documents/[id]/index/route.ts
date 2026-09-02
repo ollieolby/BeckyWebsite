@@ -3,6 +3,7 @@ import OpenAI, { toFile } from 'openai';
 import { requireUser } from '@/lib/supabase/server';
 import { apiError } from '@/lib/api-error';
 import { openAiVectorStoreId } from '@/lib/env';
+import { renditionPathFor, legacyRenditionPathFor } from '@/lib/ingest/paths';
 
 export const runtime = 'nodejs';
 // Streaming a 50 MB manual out of Supabase and into OpenAI can exceed the
@@ -28,20 +29,21 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     // electrical drawings are scans, and would otherwise index as an empty
     // file. Documents uploaded through the site have no rendition and fall
     // back to the original, which is the previous behaviour.
-    const renditionPath = renditionPathFor(document.storage_path);
-    const rendition = renditionPath
-      ? await supabase.storage.from('manuals').download(renditionPath)
-      : { data: null, error: null };
-
-    const usingRendition = Boolean(rendition.data);
-    const source = usingRendition ? rendition.data! : null;
+    const candidates = [renditionPathFor(document.id), legacyRenditionPathFor(document.storage_path)]
+      .filter((path): path is string => Boolean(path));
+    let source: Blob | null = null;
+    for (const path of candidates) {
+      const { data } = await supabase.storage.from('manuals').download(path);
+      if (data) { source = data; break; }
+    }
+    const usingRendition = Boolean(source);
     let bytes: ArrayBuffer;
     let filename: string;
     let contentType: string;
 
     if (source) {
       bytes = await source.arrayBuffer();
-      filename = renditionPath!.split('/').pop()!;
+      filename = `${document.id}.md`;
       contentType = 'text/markdown';
     } else {
       const { data: blob, error: downloadError } = await supabase.storage.from('manuals').download(document.storage_path);
@@ -74,10 +76,3 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   }
 }
 
-// scripts/ingest writes 'library/<key>.<ext>' alongside 'library/renditions/<key>.md'.
-// Anything uploaded through the site lives under a user-id prefix and has no
-// rendition.
-function renditionPathFor(storagePath: string) {
-  const match = /^library\/([^/]+)\.[^./]+$/.exec(storagePath);
-  return match ? `library/renditions/${match[1]}.md` : null;
-}

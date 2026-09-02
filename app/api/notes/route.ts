@@ -7,7 +7,7 @@ export async function POST(request:Request){
     const {supabase,user}=await requireUser(); const body=await request.json();
     const title=String(body.title??'').trim(),content=String(body.body??'').trim();
     if(!title||!content)return NextResponse.json({error:'A title and note are required.'},{status:400});
-    const {data,error}=await supabase.from('notes').insert({title,body:content,asset_id:body.asset_id||null,source:body.source==='chat'?'chat':'manual',created_by:user.id}).select().single();
+    const {data,error}=await supabase.from('notes').insert({title,body:content,asset_id:body.asset_id||null,document_id:body.document_id||null,figure_slug:String(body.figure_slug??'').trim()||null,source:body.source==='chat'?'chat':'manual',created_by:user.id}).select().single();
     if(error)throw error; return NextResponse.json(data,{status:201});
   }catch(error){return apiError(error,'Unable to save the note.');}
 }

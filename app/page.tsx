@@ -86,6 +86,7 @@ export default async function Home() {
           <Link href="/add-information"><span>01</span><strong>Upload a manual</strong><small>Add a PDF or practical document</small><b>→</b></Link>
           <Link href="/add-information"><span>02</span><strong>Save a place</strong><small>Paste a Maps link and add our notes</small><b>→</b></Link>
           <Link href="/add-information"><span>03</span><strong>Share a useful note</strong><small>Capture family knowledge and checklists</small><b>→</b></Link>
+          <Link href="/chat"><span>04</span><strong>Ask Becky to read a manual</strong><small>She pulls out its diagrams and describes each one</small><b>→</b></Link>
         </div>
       </section>
 

@@ -5,3 +5,24 @@
 .index-all{margin-top:12px;border:1px solid var(--rust);border-radius:9px;background:var(--paper);color:var(--rust);font-weight:700;padding:10px 18px;font-size:13px;cursor:pointer}
 .index-all:hover{background:var(--rust);color:#fff}
 .index-all:disabled{opacity:.55;cursor:default;background:var(--paper);color:var(--rust)}
+
+/* Figure review. The image is deliberately large: the job is checking that
+   the words match the picture, which cannot be done from a thumbnail. */
+.figure-review .manager-heading p{max-width:64ch}
+.review-list{display:grid;gap:20px}
+.review-item{display:grid;grid-template-columns:minmax(200px,320px) 1fr;gap:20px;align-items:start;padding:18px;border:1px solid rgba(23,62,57,.16);border-radius:12px;background:var(--paper)}
+.review-item img{width:100%;height:auto;max-height:340px;object-fit:contain;border-radius:9px;background:var(--cream);border:1px solid rgba(23,62,57,.12)}
+.review-noimage{display:grid;place-items:center;min-height:160px;border-radius:9px;background:var(--cream);color:#6c7975;font-size:13px}
+.review-item form{display:grid;gap:9px;min-width:0}
+.review-item label{display:grid;gap:4px;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#6c7975}
+.review-item input,.review-item textarea{border:1px solid #d7d0c3;border-radius:9px;background:var(--cream);color:var(--ink);padding:9px 12px;font-size:14px;text-transform:none;letter-spacing:normal;font-family:inherit}
+.review-origin{margin:0;font-size:12px;color:#6c7975}
+.review-origin em{color:var(--rust);font-style:normal;font-weight:700}
+.review-uncertain{margin:0;padding:9px 12px;border-radius:8px;background:rgba(198,40,40,.07);border:1px solid rgba(198,40,40,.28);font-size:13px;line-height:1.5}
+.review-item .button-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.review-item button{border:1px solid #d7d0c3;border-radius:9px;background:var(--cream);color:var(--ink);padding:9px 16px;font-size:13px;cursor:pointer}
+.review-item button[type=submit]{background:var(--rust);border-color:var(--rust);color:#fff;font-weight:700}
+.review-item button.danger:hover{border-color:#b3261e;color:#b3261e}
+.review-item button:disabled{opacity:.55;cursor:default}
+.process-problem{margin:8px 0 0;padding:9px 12px;border-left:3px solid #b3261e;background:rgba(179,38,30,.06);font-size:13px;line-height:1.5}
+@media(max-width:720px){.review-item{grid-template-columns:1fr}}

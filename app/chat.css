@@ -77,3 +77,23 @@
 .river-status.river-ok .river-dot{background:#2e7d32}
 .river-status.river-warn .river-dot{background:#c62828}
 .river-status.river-warn{border-color:rgba(198,40,40,.4)}
+
+/* The readable version of a source. Word files cannot be shown in a frame, so
+   their Markdown rendition is rendered here with the figures put back in. */
+.chat-viewer-body{max-height:min(62vh,560px);overflow:auto;padding:16px 20px;font:15px/1.6 Georgia,serif;color:var(--ink);background:#fff}
+.chat-viewer-body h1{font-size:21px;margin:0 0 10px}
+.chat-viewer-body h2{font-size:17px;margin:18px 0 6px;color:var(--rust)}
+.chat-viewer-body p{margin:0 0 9px}
+.chat-viewer-body em{color:#5c6b66;font-size:13px}
+.chat-viewer-body img{display:block;max-width:100%;max-height:340px;width:auto;height:auto;margin:10px 0 4px;border-radius:9px;border:1px solid rgba(23,62,57,.16)}
+.chat-viewer-body ul,.chat-viewer-body ol{margin:0 0 9px;padding-left:20px}
+.chat-viewer-note{color:#5c6b66;font-style:italic}
+
+/* Adding a manual from the chat. Sits above the message box so it reads as
+   part of asking Becky something, not as a separate admin task. */
+.chat-upload{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:10px;min-width:0}
+.chat-upload-button{display:inline-flex;align-items:center;gap:7px;border:1px dashed #c9c0b1;border-radius:999px;background:var(--paper);color:var(--ink);padding:7px 15px;font-size:12px;cursor:pointer}
+.chat-upload-button:hover:not(:disabled){border-color:var(--rust);border-style:solid;color:var(--rust)}
+.chat-upload-button:disabled{opacity:.6;cursor:default}
+.chat-upload-status{font-size:12px;color:#5c6b66;overflow-wrap:anywhere}
+@media(max-width:600px){.chat-upload-button{width:100%;justify-content:center;min-height:38px}}

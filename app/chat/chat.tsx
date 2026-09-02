@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { AI_MODELS, DEFAULT_AI_MODEL } from '@/lib/ai-models';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import UploadDocument from './upload-document';
 
 type Source = { id: string; title: string; mime_type: string };
 type Message = { role: 'user' | 'assistant'; content: string; sources?: Source[]; failed?: boolean };
@@ -30,6 +31,7 @@ export default function Chat() {
   const [savingMemory,setSavingMemory]=useState(false);
   const [memoryStatus,setMemoryStatus]=useState('');
   const [viewing, setViewing] = useState<{ message: number; source: Source } | null>(null);
+  const [preview, setPreview] = useState<{ id: string; markdown?: string; available: boolean; reason?: string } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesRef = useRef<Message[]>([]);
   const activeIdRef = useRef<string | null>(null);
@@ -39,6 +41,21 @@ export default function Chat() {
   const searchParams = useSearchParams();
 
   useEffect(() => { messagesRef.current = messages; }, [messages]);
+  // A Word file cannot be shown in a frame, so the readable Markdown version
+  // is fetched instead; PDFs are still shown as themselves.
+  useEffect(() => {
+    const source = viewing?.source;
+    // PDFs are shown as themselves, so nothing to fetch. Until the response
+    // lands, `preview` still points at the previous source, which is what the
+    // "Opening..." state below keys off - no state has to be cleared here.
+    if (!source || source.mime_type === 'application/pdf') return;
+    let cancelled = false;
+    fetch(`/api/documents/${source.id}/preview`)
+      .then(response => response.json())
+      .then(result => { if (!cancelled) setPreview({ id: source.id, ...result }); })
+      .catch(() => { if (!cancelled) setPreview({ id: source.id, available: false, reason: 'The readable version could not be loaded.' }); });
+    return () => { cancelled = true; };
+  }, [viewing]);
   useEffect(() => { activeIdRef.current = activeId; }, [activeId]);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, [messages, loading]);
   useEffect(() => {
@@ -209,7 +226,7 @@ export default function Chat() {
               <div className="chat-empty">
                 <span className="sparkle" aria-hidden="true">✦</span>
                 <h1>What do you want to know?</h1>
-                <p>Becky answers from the family manuals, guides, saved places, troubleshooting log, live river data and the Thames lock tables — and links the manuals it used, diagrams and all. It can also log problems and fixes for you.</p>
+                <p>Becky answers from the family manuals, guides, saved places, troubleshooting log, live river data and the Thames lock tables — and links the manuals it used, diagrams and all. It can also log problems and fixes for you — and you can add a manual with the button below, and it will read it and describe the pictures inside.</p>
                 <div className="chat-suggestions">
                   {SUGGESTIONS.map(suggestion => <button key={suggestion} type="button" onClick={() => send(suggestion)}>{suggestion}</button>)}
                 </div>
@@ -237,11 +254,23 @@ export default function Chat() {
                     <div className="chat-viewer-bar">
                       <strong>{viewing.source.title}</strong>
                       <span>
-                        <a href={`/api/documents/${viewing.source.id}/file`} target="_blank" rel="noreferrer">Open full size ↗</a>
+                        <a href={`/api/documents/${viewing.source.id}/file`} target="_blank" rel="noreferrer">
+                          {viewing.source.mime_type === 'application/pdf' ? 'Open full size ↗' : 'Download original ↓'}
+                        </a>
                         <button type="button" onClick={() => setViewing(null)}>Close ✕</button>
                       </span>
                     </div>
-                    <iframe title={viewing.source.title} src={`/api/documents/${viewing.source.id}/file`} />
+                    {viewing.source.mime_type === 'application/pdf'
+                      ? <iframe title={viewing.source.title} src={`/api/documents/${viewing.source.id}/file`} />
+                      : preview?.id !== viewing.source.id
+                        ? <div className="chat-viewer-body chat-viewer-note">Opening…</div>
+                        : preview.available && preview.markdown
+                          ? <div className="chat-viewer-body">
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>{preview.markdown}</ReactMarkdown>
+                            </div>
+                          : <div className="chat-viewer-body chat-viewer-note">
+                              {preview.reason ?? 'There is no readable version of this document yet.'}
+                            </div>}
                   </div>
                 )}
               </article>
@@ -251,6 +280,10 @@ export default function Chat() {
           </main>
 
           <form className="chat-input" onSubmit={submit}>
+            <UploadDocument
+              disabled={loading}
+              onDone={summary => setMessages(current => [...current, { role: 'assistant', content: summary }])}
+            />
             {messages.some(message=>message.role==='assistant'&&!message.failed)&&<div className="chat-memory">
               <button type="button" onClick={saveToGroupMemory} disabled={savingMemory||loading}>{savingMemory?'Adding to memory…':'Add this chat history to group memory'}</button>
               {memoryStatus&&<span role="status">{memoryStatus}</span>}

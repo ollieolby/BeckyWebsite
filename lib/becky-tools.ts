@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { THAMES_LOCKS } from './thames-locks';
 import { fetchRiverLevel, fetchRiverConditions } from './river-data';
+import { processDocumentBatch } from './ingest/process';
 import { figureTerms, rankFigures } from './figure-search';
 
 // Where the boats live: on the Marlow–Cookham reach near Bourne End.
@@ -150,6 +151,38 @@ export const BECKY_TOOL_DEFINITIONS = [
         asset_slug: { type: 'string', enum: ['becky', 'cormorant', 'drakar'], description: 'Which boat or the garden this concerns. Omit for general.' },
       },
       required: ['title', 'body'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'function' as const,
+    name: 'list_documents',
+    description: 'List the manuals and documents in the family library, with whether each has been read for figures and indexed for search. Use when the user asks what documents exist, or refers to something they have just uploaded.',
+    strict: false,
+    parameters: { type: 'object', properties: {}, additionalProperties: false },
+  },
+  {
+    type: 'function' as const,
+    name: 'process_document',
+    description: 'Read an uploaded manual: pull out its photographs and diagrams, describe each one, and prepare it for search. Use when the user says they have uploaded something and wants it made usable, or asks you to add a document. Works on .docx, .pdf, .md and .txt. Call it repeatedly until it reports done - each call handles a batch. The descriptions it produces are held back for a person to approve, so tell the user their figures are waiting for review in the family area.',
+    strict: false,
+    parameters: {
+      type: 'object',
+      properties: { id: { type: 'string', description: 'The document id from list_documents.' } },
+      required: ['id'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'function' as const,
+    name: 'list_document_notes',
+    description: 'List the family\'s clarifications and corrections attached to a manual, including ones about a specific figure. The manuals are fixed files that cannot be edited in the site, so anything the family has learnt since — a correction, a missing step, a warning — is recorded here instead. ALWAYS call this after file_search returns something from a manual, and treat these notes as more current than the manual itself.',
+    strict: false,
+    parameters: {
+      type: 'object',
+      properties: {
+        document_title: { type: 'string', description: 'Title of the manual, as cited in the retrieved text, e.g. "Instruction Manual for Becky". Omit to list clarifications on every manual.' },
+      },
       additionalProperties: false,
     },
   },
@@ -351,6 +384,13 @@ async function findFigures(
     return { figures: [], note: 'No figure matches. Say so rather than describing a picture you have not seen.' };
   }
 
+  // A manual cannot be corrected in the browser, so corrections live as notes
+  // attached to the figure. Fetch them for whatever is about to be shown: a
+  // figure sent without its correction is worse than no figure.
+  const slugs = chosen.map(row => row.slug);
+  const { data: clarifications } = await supabase
+    .from('notes').select('title,body,figure_slug').in('figure_slug', slugs);
+
   // Signed rather than public: the figures bucket is private because these are
   // interior photographs of a home. An hour outlives any chat.
   const figures = [];
@@ -364,12 +404,16 @@ async function findFigures(
       section: row.section,
       from_document: document?.title ?? '',
       notes: row.notes || undefined,
+      clarifications: (clarifications ?? [])
+        .filter(note => note.figure_slug === row.slug)
+        .map(note => ({ title: note.title, body: note.body })),
       image_url: signed?.signedUrl ?? null,
     });
   }
   return {
     figures,
     how_to_show: 'Embed the best match in the answer as Markdown: ![label](image_url). Show at most two, and say which document and section each came from.',
+    about_clarifications: 'A figure\'s clarifications are family corrections to the manual, written after it. They are more current than the manual and must be passed on with the figure.',
   };
 }
 
@@ -412,6 +456,54 @@ export async function runBeckyTool(name: string, args: Record<string, unknown>, 
     if (error) return JSON.stringify({ error: `Could not save the guide (${error.message}). The user may need editor access.` });
     return JSON.stringify({ saved: data, note: 'Published. It can be edited or unpublished in the family area.' });
   }
+  if (name === 'list_documents') {
+    const { data, error } = await supabase.from('documents')
+      .select('id,title,index_status,process_status,is_published,assets(slug)')
+      .order('created_at', { ascending: false }).limit(60);
+    if (error) throw new Error(error.message);
+    return JSON.stringify({
+      documents: data ?? [],
+      key: 'process_status "done" means its figures have been pulled out; index_status "indexed" means its text is searchable.',
+    });
+  }
+  if (name === 'process_document') {
+    const id = String(args.id ?? '').trim();
+    if (!id) return JSON.stringify({ error: 'A document id is required. Use list_documents first.' });
+    try {
+      // A smaller batch than the family area uses: a chat turn has far less
+      // time than the processing route, so it does less per call and the
+      // model calls again.
+      const result = await processDocumentBatch(supabase, id, 3);
+      return JSON.stringify({
+        ...result,
+        what_next: result.done
+          ? 'Finished. The figures are described but hidden until a person approves them in the family area, under "Needs a look". Tell the user that, and that the document still needs indexing before you can search its text.'
+          : 'Not finished. Call process_document again with the same id to continue.',
+      });
+    } catch (error) {
+      return JSON.stringify({ error: error instanceof Error ? error.message : 'The document could not be read.' });
+    }
+  }
+  if (name === 'list_document_notes') {
+    let query = supabase
+      .from('notes')
+      .select('title,body,figure_slug,updated_at,documents(title)')
+      .not('document_id', 'is', null)
+      .order('updated_at', { ascending: false })
+      .limit(100);
+    const wanted = String(args.document_title ?? '').trim();
+    if (wanted) {
+      const { data: match } = await supabase.from('documents').select('id').ilike('title', `%${wanted}%`).limit(1).maybeSingle();
+      if (!match) return JSON.stringify({ notes: [], note: 'No manual with a title like that.' });
+      query = query.eq('document_id', match.id);
+    }
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+    return JSON.stringify({
+      notes: data ?? [],
+      about: 'Family corrections and clarifications, written after the manual. Where one contradicts the manual, the note is the more current.',
+    });
+  }
   if (name === 'find_figure') return JSON.stringify(await findFigures(supabase, args));
   if (name === 'get_river_level') return JSON.stringify(await fetchRiverLevel());
   if (name === 'get_river_conditions') {
@@ -422,7 +514,7 @@ export async function runBeckyTool(name: string, args: Record<string, unknown>, 
     return JSON.stringify({ home_reach: 'Marlow Lock to Cookham Lock', conditions: wanted });
   }
   if (name === 'list_notes') {
-    let query = supabase.from('notes').select('title,body,source,updated_at,assets(slug,name)').order('updated_at',{ascending:false}).limit(100);
+    let query = supabase.from('notes').select('title,body,source,updated_at,figure_slug,assets(slug,name),documents(title)').order('updated_at',{ascending:false}).limit(100);
     if(typeof args.asset_slug==='string'&&args.asset_slug){
       const {data:asset,error:assetError}=await supabase.from('assets').select('id').eq('slug',args.asset_slug).maybeSingle();
       if(assetError)throw new Error(assetError.message);

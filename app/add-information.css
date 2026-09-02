@@ -35,3 +35,12 @@
 .join-foot{margin-top:26px;font-size:13px;color:#6c7975}
 .join-foot a,.add-page a.ask-small{color:var(--rust);font-weight:700}
 @media(max-width:600px){.add-steps li,.join-steps li{grid-template-columns:34px 1fr;gap:12px}.join-form button{width:100%;text-align:center;justify-self:stretch}}
+
+/* Pointing people at the assistant for the part she does better than a form. */
+.ask-becky-callout{margin:34px 0 0;padding:24px clamp(18px,3vw,30px);border-radius:14px;background:var(--paper);border:1px solid rgba(23,62,57,.16);border-left:3px solid var(--rust)}
+.ask-becky-callout h2{font:500 clamp(22px,2.6vw,30px)/1.15 Georgia,serif;margin:0 0 12px;letter-spacing:-.02em}
+.ask-becky-callout>p{max-width:60ch;color:#4b5a56;font:15px/1.65 Georgia,serif;margin:0 0 14px}
+.ask-becky-callout em{color:var(--ink)}
+.ask-becky-callout ul{margin:0 0 18px;padding-left:20px;max-width:62ch}
+.ask-becky-callout li{margin:6px 0;font-size:14px;line-height:1.55;color:#4b5a56}
+.ask-becky-callout .add-note{margin-top:0}

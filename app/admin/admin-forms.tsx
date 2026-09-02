@@ -1,13 +1,14 @@
 'use client';
 import { FormEvent, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import {MANUAL_ACCEPT,MANUAL_MAX_BYTES,manualTypeFor,manualTypeError} from '@/lib/manual-types';
 
 type Asset={id:string;name:string;slug:string};
 type Lookup={name?:string;latitude?:number;longitude?:number;url?:string};
 
 // Browsers leave File.type empty for .md (and sometimes .txt), but the bucket
 // only accepts these three types, so infer from the extension as a fallback.
-const MANUAL_TYPES:Record<string,string>={pdf:'application/pdf',txt:'text/plain',md:'text/markdown'};
+
 
 async function readJson(response:Response):Promise<Record<string,unknown>>{
   try{return await response.json()}catch{return{}}
@@ -44,9 +45,9 @@ export default function AdminForms({assets,canEdit}:{assets:Asset[];canEdit:bool
     const fields=new FormData(event.currentTarget);
     const file=fields.get('file');
     if(!(file instanceof File)||!file.size)return setStatus('Choose a file to upload.');
-    if(file.size>50*1024*1024)return setStatus('Files must be 50 MB or smaller.');
-    const fallbackType=MANUAL_TYPES[file.name.split('.').pop()?.toLowerCase()??''];
-    if(!fallbackType)return setStatus('Use a PDF, .txt, or .md file.');
+    if(file.size>MANUAL_MAX_BYTES)return setStatus('Files must be 150 MB or smaller.');
+    const fallbackType=manualTypeFor(file.name);
+    if(!fallbackType)return setStatus(manualTypeError(file.name));
     setBusy(true);
     let path='';
     try{
@@ -140,7 +141,7 @@ export default function AdminForms({assets,canEdit}:{assets:Asset[];canEdit:bool
       <label>Title<input name="title" required placeholder="Webasto heating manual"/></label>
       <label>For<select name="asset_id"><option value="">General</option>{assets.map(asset=><option value={asset.id} key={asset.id}>{asset.name}</option>)}</select></label>
       <label>Notes<textarea name="notes" rows={4} placeholder="What this covers, model number, useful pages, or anything the family should know"/></label>
-      <label>Document<input name="file" type="file" accept=".pdf,.txt,.md" required/></label>
+      <label>Document<input name="file" type="file" accept={MANUAL_ACCEPT} required/></label>
       <label><input name="is_published" type="checkbox" defaultChecked/> Publish for visitors</label><button disabled={busy}>{busy?'Working…':'Upload manual'}</button>
     </form></article>
     <article className="admin-panel"><h2>Save a place</h2><p>Paste a Google Maps sharing link. No paid Google API is used.</p>

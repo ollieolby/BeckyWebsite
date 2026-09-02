@@ -12,13 +12,15 @@ export const dynamic = 'force-dynamic';
 export default async function AddInformationPage() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const [{ data: profile }, { data: assets }, { data: notes }] = user
+  const [{ data: profile }, { data: assets }, { data: notes }, { data: documents }, { data: figureRefs }] = user
     ? await Promise.all([
         supabase.from('profiles').select('display_name,email,role').eq('id', user.id).single(),
         supabase.from('assets').select('id,name,slug').order('name'),
-        supabase.from('notes').select('id,title,body,asset_id,source').order('updated_at', { ascending: false }),
+        supabase.from('notes').select('id,title,body,asset_id,source,document_id,figure_slug').order('updated_at', { ascending: false }),
+        supabase.from('documents').select('id,title').order('title'),
+        supabase.from('document_figures').select('slug,label,document_id').order('document_id').order('figure_no'),
       ])
-    : [{ data: null }, { data: [] }, { data: [] }];
+    : [{ data: null }, { data: [] }, { data: [] }, { data: [] }, { data: [] }];
   const canEdit = profile?.role === 'editor' || profile?.role === 'admin';
   return (
     <main className="add-page">
@@ -53,9 +55,27 @@ export default async function AddInformationPage() {
           </li>
           <li>
             <span>3</span>
-            <div><strong>Save it</strong><small>Manuals are indexed so Ask Becky can quote them and show their figures. Notes are searchable straight away.</small></div>
+            <div><strong>Save it</strong><small>Notes are searchable straight away. Manuals need reading and indexing first — see below.</small></div>
           </li>
         </ol>
+
+        <div className="ask-becky-callout">
+          <p className="kicker">Uploaded a manual?</p>
+          <h2>Ask Becky to read it for you</h2>
+          <p>
+            Say <em>&ldquo;I&rsquo;ve just uploaded the Webasto manual, can you read it?&rdquo;</em> and she will pull out
+            its photographs and diagrams and write a description of each one, so she can send you the right picture
+            when you ask where something is.
+          </p>
+          <ul>
+            <li>Works on <strong>.docx</strong>, <strong>.pdf</strong>, <strong>.md</strong> and <strong>.txt</strong>. Old <strong>.doc</strong> files need saving as .docx first.</li>
+            <li>She writes the descriptions by looking at each picture, so she sometimes gets one wrong. Nothing she writes is shown to anyone until a person approves it in the family area.</li>
+            <li>She cannot be sent a file in chat — upload it here first, then ask.</li>
+          </ul>
+          {user
+            ? <Link className="add-primary" href="/chat">Ask Becky <span>→</span></Link>
+            : <p className="add-note">Sign in first, then you can ask her.</p>}
+        </div>
         {!user && (
           <p className="add-cta">
             <Link className="add-primary" href="/login">Sign in to add information <span>→</span></Link>
@@ -70,7 +90,7 @@ export default async function AddInformationPage() {
         {user && (
           <>
             <AdminForms assets={assets ?? []} canEdit={canEdit} />
-            <NotesPanel assets={assets ?? []} notes={notes ?? []} canEdit={canEdit} />
+            <NotesPanel assets={assets ?? []} notes={notes ?? []} canEdit={canEdit} documents={documents ?? []} figures={figureRefs ?? []} />
             {canEdit && (
               <p className="add-note">
                 Managing what is already there — editing, unpublishing, re-indexing, invite links — lives in
