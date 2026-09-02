@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import * as maplibregl from 'maplibre-gl';
 import { THAMES_LOCKS } from '@/lib/thames-locks';
+import { locksEitherSide, minutesFor, type LockFix } from '@/lib/river-position';
 import { CATEGORY_COLOURS, CATEGORY_LABELS, CATEGORY_ICONS, markerElement } from './marker-icons';
 
 type Place = {
@@ -117,6 +118,8 @@ export default function RiverMap() {
   const [failed, setFailed] = useState(false);
   const [active, setActive] = useState<string | null>(null);
   const [mapProblem, setMapProblem] = useState<string | null>(null);
+  const [fix, setFix] = useState<{ upstream: LockFix | null; downstream: LockFix | null; speedKmh: number | null } | null>(null);
+  const [offRiver, setOffRiver] = useState(false);
   const [showLocks, setShowLocks] = useState(true);
   const [query, setQuery] = useState('');
 
@@ -152,11 +155,22 @@ export default function RiverMap() {
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     // Where the reader is, if they let the browser say. Needs https, which
     // the deployed site has; on http it simply never offers.
-    map.addControl(new maplibregl.GeolocateControl({
+    const locate = new maplibregl.GeolocateControl({
       positionOptions: { enableHighAccuracy: true },
       trackUserLocation: true,
       showAccuracyCircle: true,
-    }), 'top-right');
+    });
+    // The control already has permission and a position, so the lock times
+    // come off its readings rather than asking the reader a second time.
+    locate.on('geolocate', event => {
+      const { latitude, longitude, speed } = event.coords;
+      const either = locksEitherSide(latitude, longitude);
+      setOffRiver(!either);
+      // speed is metres per second and is null on most laptops, and on a
+      // phone until it has actually moved.
+      setFix(either ? { ...either, speedKmh: typeof speed === 'number' && speed >= 0 ? speed * 3.6 : null } : null);
+    });
+    map.addControl(locate, 'top-right');
     map.addControl(new HomeControl(), 'top-right');
     map.on('error', event => {
       console.error('[river map]', event.error?.message ?? event);
@@ -269,6 +283,31 @@ export default function RiverMap() {
       </div>
 
       <aside className="river-map-list">
+        {(fix || offRiver) && (
+          <div className="lock-eta">
+            {offRiver
+              ? <p className="lock-eta-note">You are not on the navigation, so there is no lock to time.</p>
+              : <>
+                  <p className="lock-eta-head">
+                    {fix!.speedKmh && fix!.speedKmh > 1
+                      ? <>Doing <strong>{fix!.speedKmh.toFixed(1)} km/h</strong></>
+                      : <>Not moving — timed at the <strong>8 km/h</strong> limit</>}
+                  </p>
+                  {([fix!.upstream, fix!.downstream].filter(Boolean) as LockFix[]).map(lock => (
+                    <button type="button" key={lock.name} className="lock-eta-row"
+                      onClick={() => show(lock.lng, lock.lat, `lock:${lock.name}`)}>
+                      <span className="lock-eta-dir">{lock.direction === 'upstream' ? '↑' : '↓'}</span>
+                      <span className="lock-eta-name">{lock.name.replace(' (to Teddington Boundary Obelisk)', '')}</span>
+                      <span className="lock-eta-time">
+                        {duration(minutesFor(lock.km, fix!.speedKmh))}
+                        <small>{lock.km.toFixed(1)} km</small>
+                      </span>
+                    </button>
+                  ))}
+                  <p className="lock-eta-note">Distance by water, split across the reach you are on. Lock queues are not counted.</p>
+                </>}
+          </div>
+        )}
         <input
           className="river-map-search" type="search" value={query}
           onChange={event => setQuery(event.target.value)}
