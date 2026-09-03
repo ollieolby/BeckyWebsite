@@ -8,6 +8,7 @@ import {
 } from '@/lib/river-position';
 import Link from 'next/link';
 import { markerElement, CATEGORY_COLOURS } from '../map/marker-icons';
+import { pushSample, smoothed, derivedSpeedKmh, type SpeedSample } from '@/lib/speed';
 
 type Direction = 'upstream' | 'downstream';
 
@@ -32,6 +33,8 @@ export default function Tracker() {
   // from movement rather than asked for.
   const lastAlong = useRef<number | null>(null);
   const centred = useRef(false);
+  const samples = useRef<SpeedSample[]>([]);
+  const lastPos = useRef<{ lat: number; lng: number; at: number; accuracy: number } | null>(null);
 
   const [tracking, setTracking] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
@@ -90,9 +93,22 @@ export default function Tracker() {
   }, []);
 
   const onPosition = useCallback((position: GeolocationPosition) => {
-    const { latitude, longitude, speed } = position.coords;
+    const { latitude, longitude, speed, accuracy } = position.coords;
+    const at = position.timestamp || Date.now();
     setProblem(null);
-    setSpeedKmh(typeof speed === 'number' && speed >= 0 ? speed * 3.6 : null);
+
+    // Prefer what the device reports; work it out from two fixes when it
+    // reports nothing, which some phones do throughout.
+    const here = { lat: latitude, lng: longitude, at, accuracy: accuracy ?? 10 };
+    const reading = typeof speed === 'number' && speed >= 0
+      ? speed * 3.6
+      : lastPos.current ? derivedSpeedKmh(lastPos.current, here) : null;
+    lastPos.current = here;
+
+    if (reading !== null) samples.current = pushSample(samples.current, reading, at);
+    // A boat holds its speed, so the mean of the last few seconds is a truer
+    // reading than the last sample on its own.
+    setSpeedKmh(smoothed(samples.current, at));
 
     const next = fixOnRiver(latitude, longitude);
     setFix(next);
@@ -137,6 +153,8 @@ export default function Tracker() {
 
   function stop() {
     centred.current = false;
+    samples.current = [];
+    lastPos.current = null;
     if (watchRef.current !== null) navigator.geolocation.clearWatch(watchRef.current);
     watchRef.current = null;
     setTracking(false);
