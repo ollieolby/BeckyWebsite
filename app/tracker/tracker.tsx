@@ -31,6 +31,7 @@ export default function Tracker() {
   // Where along the river we were last time, so the direction can be read
   // from movement rather than asked for.
   const lastAlong = useRef<number | null>(null);
+  const centred = useRef(false);
 
   const [tracking, setTracking] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
@@ -100,7 +101,15 @@ export default function Tracker() {
     if (map) {
       if (!meRef.current) meRef.current = new maplibregl.Marker({ element: markerElement('home') }).setLngLat([longitude, latitude]).addTo(map);
       else meRef.current.setLngLat([longitude, latitude]);
-      map.easeTo({ center: [longitude, latitude], duration: 700 });
+      if (!centred.current) {
+        // Snap to a useful scale on the first fix. The map is built before
+        // its container has a height, so the zoom it starts with cannot be
+        // relied on; after this the reader's own pinching is left alone.
+        map.jumpTo({ center: [longitude, latitude], zoom: 14.5 });
+        centred.current = true;
+      } else {
+        map.easeTo({ center: [longitude, latitude], duration: 700 });
+      }
     }
 
     if (!next) return;
@@ -127,6 +136,7 @@ export default function Tracker() {
   }
 
   function stop() {
+    centred.current = false;
     if (watchRef.current !== null) navigator.geolocation.clearWatch(watchRef.current);
     watchRef.current = null;
     setTracking(false);
