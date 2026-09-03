@@ -35,7 +35,10 @@
 
 @media(max-width:860px){
   .river-map{grid-template-columns:1fr;gap:16px}
-  .river-map-canvas{position:static;height:min(52vh,380px);transform:none}
+  /* relative, not static: static leaves no containing block, so MapLibre's
+     controls, the legend and the markers all escaped the map and landed on
+     the page around it. */
+  .river-map-canvas{position:relative;top:auto;height:min(52vh,380px);transform:none}
   .river-map-list{max-height:none;overflow:visible}
 }
 
