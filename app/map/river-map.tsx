@@ -114,12 +114,14 @@ export default function RiverMap() {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markers = useRef<Record<string, maplibregl.Marker>>({});
+  const locateRef = useRef<maplibregl.GeolocateControl | null>(null);
   const [places, setPlaces] = useState<Place[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [active, setActive] = useState<string | null>(null);
   const [mapProblem, setMapProblem] = useState<string | null>(null);
   const [fix, setFix] = useState<{ upstream: LockFix | null; downstream: LockFix | null; speedKmh: number | null } | null>(null);
   const [offRiver, setOffRiver] = useState(false);
+  const [locateProblem, setLocateProblem] = useState<string | null>(null);
   const [showLocks, setShowLocks] = useState(true);
   const [query, setQuery] = useState('');
 
@@ -164,12 +166,19 @@ export default function RiverMap() {
     // come off its readings rather than asking the reader a second time.
     locate.on('geolocate', event => {
       const { latitude, longitude, speed } = event.coords;
+      setLocateProblem(null);
       const either = locksEitherSide(latitude, longitude);
       setOffRiver(!either);
       // speed is metres per second and is null on most laptops, and on a
       // phone until it has actually moved.
       setFix(either ? { ...either, speedKmh: typeof speed === 'number' && speed >= 0 ? speed * 3.6 : null } : null);
     });
+    locate.on('error', () => {
+      setOffRiver(false);
+      setFix(null);
+      setLocateProblem('Could not get your position. Check that location is allowed for this site.');
+    });
+    locateRef.current = locate;
     map.addControl(locate, 'top-right');
     map.addControl(new HomeControl(), 'top-right');
     map.on('error', event => {
@@ -209,7 +218,7 @@ export default function RiverMap() {
         : [];
       markers.current[`lock:${lock.name}`] = new maplibregl.Marker({ element: markerElement('lock', { small: true }) })
         .setLngLat([lock.lng, lock.lat])
-        .setPopup(popup('Lock', lock.name, lines))
+        .setPopup(popup('Lock · for navigation, not a mooring', lock.name, lines))
         .addTo(map);
     }
 
@@ -283,6 +292,16 @@ export default function RiverMap() {
       </div>
 
       <aside className="river-map-list">
+        {!fix && !offRiver && (
+          <div className="lock-eta">
+            <button type="button" className="lock-eta-start" onClick={() => locateRef.current?.trigger()}>
+              Show where I am
+            </button>
+            <p className="lock-eta-note">
+              {locateProblem ?? 'Times to the lock above and the lock below, at your speed over the ground.'}
+            </p>
+          </div>
+        )}
         {(fix || offRiver) && (
           <div className="lock-eta">
             {offRiver
@@ -343,7 +362,7 @@ export default function RiverMap() {
 
         <section>
           <h2><span className="dot" style={{ background: CATEGORY_COLOURS.lock }} />Locks {search ? '' : `(${locks.length})`}</h2>
-          <p className="river-map-note river-map-hint">Cruising time from the home reach at 8 km/h, allowing 15 minutes a lock. Conditions and queues change it.</p>
+          <p className="river-map-note river-map-hint">How you navigate the river and work out how long anything takes: times below are at 8 km/h, allowing 15 minutes a lock, before any queue. Locks are for passing through — there is no permanent mooring at one and they are not somewhere to stop.</p>
           <ul>
             {(search ? matchingLocks : locks).map(lock => {
               const time = FROM_HOME.get(lock.name);
