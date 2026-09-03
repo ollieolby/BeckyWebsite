@@ -13,6 +13,7 @@ export default function MapPage() {
         <Link className="brand" href="/"><span className="brand-mark">B</span><span>BECKY</span></Link>
         <nav aria-label="Main navigation">
           <Link href="/">Home</Link>
+          <Link href="/tracker">Track me</Link>
           <Link href="/chat">Ask Becky</Link>
           <Link href="/add-information">Add information</Link>
         </nav>
