@@ -2,7 +2,9 @@
    glance from the wheelhouse rather than studied. */
 .tracker-page{min-height:100dvh;display:flex;flex-direction:column;background:var(--deep-water)}
 .tracker{flex:1;display:flex;flex-direction:column;min-height:0}
-.tracker-map{flex:1;min-height:38vh;position:relative;background:#e8e4dc}
+/* The map gives way, not the figures: on a short phone the panel must be
+   readable without scrolling, so the map takes whatever is left over. */
+.tracker-map{flex:1 1 auto;min-height:150px;position:relative;background:#e8e4dc}
 .tracker-map .map-surface{position:absolute;inset:0}
 
 .tracker-start{padding:26px clamp(18px,5vw,40px) 34px;background:var(--paper);text-align:center}
@@ -10,9 +12,9 @@
 .tracker-start p{max-width:44ch;margin:0 auto 18px;color:#60706b;font:15px/1.6 Georgia,serif}
 .tracker-start button{border:0;border-radius:11px;background:var(--rust);color:#fff;font-weight:800;font-size:16px;padding:15px 30px;cursor:pointer;min-height:52px}
 
-.tracker-panel{background:var(--paper);border-top:1px solid rgba(18,62,71,.16);padding:16px clamp(14px,4vw,26px) max(18px,env(safe-area-inset-bottom));display:grid;gap:13px}
+.tracker-panel{flex:none;background:var(--paper);border-top:1px solid rgba(18,62,71,.16);padding:14px clamp(14px,4vw,26px) max(16px,env(safe-area-inset-bottom));display:grid;gap:11px}
 .tracker-speed{display:flex;align-items:baseline;gap:10px}
-.tracker-speed strong{font:600 clamp(46px,13vw,68px)/1 Georgia,serif;color:var(--deep-water);font-variant-numeric:tabular-nums}
+.tracker-speed strong{font:600 clamp(40px,12vw,64px)/1 Georgia,serif;color:var(--deep-water);font-variant-numeric:tabular-nums}
 .tracker-speed span{font-size:13px;font-weight:700;color:#6c7975}
 
 .tracker-controls{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
