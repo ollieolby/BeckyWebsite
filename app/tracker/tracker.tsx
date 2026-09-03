@@ -6,7 +6,8 @@ import {
   fixOnRiver, routeTo, locksAhead, minutesFor, MINUTES_IN_LOCK,
   type RiverFix,
 } from '@/lib/river-position';
-import { markerElement } from '../map/marker-icons';
+import Link from 'next/link';
+import { markerElement, CATEGORY_COLOURS } from '../map/marker-icons';
 
 type Direction = 'upstream' | 'downstream';
 
@@ -25,6 +26,7 @@ export default function Tracker() {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const meRef = useRef<maplibregl.Marker | null>(null);
+  const targetRef = useRef<maplibregl.Marker | null>(null);
   const watchRef = useRef<number | null>(null);
   // Where along the river we were last time, so the direction can be read
   // from movement rather than asked for.
@@ -38,6 +40,29 @@ export default function Tracker() {
   const [pinned, setPinned] = useState(false);          // user overrode the direction
   const [target, setTarget] = useState<number | null>(null);
   const [countLocks, setCountLocks] = useState(true);
+
+  // The saved places, as quiet dots. They are context while under way, not
+  // the subject of the page, so they get no pins, labels or popups.
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/places')
+      .then(response => (response.ok ? response.json() : []))
+      .then((places: { id: string; latitude: number; longitude: number; name: string; category: string }[]) => {
+        const map = mapRef.current;
+        if (cancelled || !map) return;
+        for (const place of places) {
+          const dot = document.createElement('div');
+          dot.className = 'tracker-dot';
+          dot.style.background = CATEGORY_COLOURS[place.category] ?? CATEGORY_COLOURS.other;
+          dot.title = place.name;
+          new maplibregl.Marker({ element: dot }).setLngLat([place.longitude, place.latitude]).addTo(map);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+    // Once only: keyed on `tracking` this refetched and added a second dot
+    // for every place the moment the reader pressed Start.
+  }, []);
 
   useEffect(() => {
     if (!container.current || mapRef.current) return;
@@ -117,6 +142,21 @@ export default function Tracker() {
     : ahead[0]?.index ?? null;
 
   const route = fix && activeTarget !== null ? routeTo(fix, activeTarget) : null;
+  const targetLock = ahead.find(lock => lock.index === activeTarget) ?? null;
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !targetLock) return;
+    // setLngLat before addTo: addTo reads the position straight away and
+    // throws on a marker that has not been given one.
+    if (!targetRef.current) {
+      targetRef.current = new maplibregl.Marker({ element: markerElement('lock', { small: true }) })
+        .setLngLat([targetLock.lng, targetLock.lat])
+        .addTo(map);
+      return;
+    }
+    targetRef.current.setLngLat([targetLock.lng, targetLock.lat]);
+  }, [targetLock]);
   const usingLimit = !speedKmh || speedKmh <= 1;
   const minutes = route
     ? minutesFor(route.km, usingLimit ? null : speedKmh) + (countLocks ? route.locksPassed * MINUTES_IN_LOCK : 0)
@@ -124,6 +164,18 @@ export default function Tracker() {
 
   return (
     <div className={`tracker${tracking ? ' is-tracking' : ''}`}>
+      <header className="tracker-bar">
+        <Link href="/map" className="tracker-back" aria-label="Back to the river map">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 5l-7 7 7 7" />
+          </svg>
+          <span>Map</span>
+        </Link>
+        <strong>Track me</strong>
+        {tracking
+          ? <button type="button" className="tracker-barstop" onClick={stop}>Stop</button>
+          : <span className="tracker-barspace" />}
+      </header>
       <div className="tracker-map"><div ref={container} className="map-surface" aria-label="Your position on the river" /></div>
 
       {!tracking ? (
@@ -186,7 +238,6 @@ export default function Tracker() {
             {problem && <> {problem}</>}
           </p>
 
-          <button type="button" className="tracker-stop" onClick={stop}>Stop tracking</button>
         </div>
       )}
     </div>
