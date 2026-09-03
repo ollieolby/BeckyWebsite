@@ -158,7 +158,7 @@ export default function RiverMap() {
     // Where the reader is, if they let the browser say. Needs https, which
     // the deployed site has; on http it simply never offers.
     const locate = new maplibregl.GeolocateControl({
-      positionOptions: { enableHighAccuracy: true },
+      positionOptions: { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
       trackUserLocation: true,
       showAccuracyCircle: true,
     });
@@ -174,9 +174,9 @@ export default function RiverMap() {
       setFix(either ? { ...either, speedKmh: typeof speed === 'number' && speed >= 0 ? speed * 3.6 : null } : null);
     });
     locate.on('error', () => {
-      setOffRiver(false);
-      setFix(null);
-      setLocateProblem('Could not get your position. Check that location is allowed for this site.');
+      // iOS drops a reading fairly often. Keeping the last one is far more
+      // use than collapsing the panel every time a fix times out.
+      setLocateProblem('Position lost for a moment — showing the last reading.');
     });
     locateRef.current = locate;
     map.addControl(locate, 'top-right');
@@ -308,9 +308,9 @@ export default function RiverMap() {
               ? <p className="lock-eta-note">You are not on the navigation, so there is no lock to time.</p>
               : <>
                   <p className="lock-eta-head">
-                    {fix!.speedKmh && fix!.speedKmh > 1
-                      ? <>Doing <strong>{fix!.speedKmh.toFixed(1)} km/h</strong></>
-                      : <>Not moving — timed at the <strong>8 km/h</strong> limit</>}
+                    Between <strong>{(fix!.upstream?.name ?? 'the head of the river').replace(' (to Teddington Boundary Obelisk)', '')}</strong>
+                    {' and '}
+                    <strong>{(fix!.downstream?.name ?? 'the tideway').replace(' (to Teddington Boundary Obelisk)', '')}</strong>
                   </p>
                   {([fix!.upstream, fix!.downstream].filter(Boolean) as LockFix[]).map(lock => (
                     <button type="button" key={lock.name} className="lock-eta-row"
@@ -323,7 +323,13 @@ export default function RiverMap() {
                       </span>
                     </button>
                   ))}
-                  <p className="lock-eta-note">Distance by water, split across the reach you are on. Lock queues are not counted.</p>
+                  <p className="lock-eta-note">
+                    {fix!.speedKmh && fix!.speedKmh > 1
+                      ? <>Timed at your <strong>{fix!.speedKmh.toFixed(1)} km/h</strong> over the ground. </>
+                      : <>Not making way, so timed at the 8 km/h limit. </>}
+                    Distance by water, split across the reach. Lock queues are not counted.
+                    {locateProblem && <> {locateProblem}</>}
+                  </p>
                 </>}
           </div>
         )}
