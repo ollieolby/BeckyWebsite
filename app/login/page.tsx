@@ -1,77 +1,43 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, Suspense, useState } from 'react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
-export default function LoginPage() {
+function SignIn() {
+  const params = useSearchParams();
   const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const [cooldown, setCooldown] = useState(0);
-  const [sent, setSent] = useState(false);
-  const [code, setCode] = useState('');
-  const [verifying, setVerifying] = useState(false);
-
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const timer = window.setTimeout(() => setCooldown(value => value - 1), 1000);
-    return () => window.clearTimeout(timer);
-  }, [cooldown]);
+  const [password, setPassword] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState(
+    params.get('error') === 'invalid-or-expired-link' ? 'That link has expired. Sign in below, or reset your password.' :
+    params.get('reset') === 'done' ? 'Password saved. Sign in with it below.' : '',
+  );
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (cooldown > 0) return;
-
-    setCooldown(30);
-    setMessage('Sending your sign-in email…');
+    setBusy(true);
+    setMessage('Signing in…');
     try {
-      // shouldCreateUser:false so this page can only sign in an existing
-      // account. Open sign-up is also switched off in Supabase Auth, which is
-      // the check that actually holds: the anon key is public, so anything
-      // decided in the browser can be bypassed by calling the API directly.
-      // New people come in through an invite link, which is redeemed by
-      // /api/join using the service-role key.
-      const { error } = await createSupabaseBrowserClient().auth.signInWithOtp({
-        email,
-        options: { shouldCreateUser: false, emailRedirectTo: `${location.origin}/auth/callback` },
-      });
+      const { error } = await createSupabaseBrowserClient().auth.signInWithPassword({ email: email.trim(), password });
       if (error) {
-        return setMessage(/signups? not allowed|user not found|Signups not allowed for otp/i.test(error.message)
-          ? 'That address does not have an account. Ask a family member for an invite link.'
-          : error.message);
-      }
-      setSent(true);
-      setMessage('Email sent. Click the link, or type the code from the email below — the code works even when the link has “expired”.');
-    } catch {
-      setMessage('Could not send the email. Check your connection and try again.');
-    }
-  }
-
-  // Corporate mail scanners often pre-open magic links, which burns the
-  // one-time token before the reader ever clicks it. Typing the code from the
-  // same email avoids that entirely, and works in any browser or profile.
-  async function verifyCode(event: FormEvent) {
-    event.preventDefault();
-    if (!code.trim()) return;
-    setVerifying(true);
-    setMessage('Checking the code…');
-    try {
-      const { error } = await createSupabaseBrowserClient().auth.verifyOtp({
-        email,
-        token: code.trim(),
-        type: 'email',
-      });
-      if (error) {
-        setMessage(error.message === 'Token has expired or is invalid'
-          ? 'That code is wrong or has expired. Request a fresh email and use its newest code.'
-          : error.message);
-        setVerifying(false);
+        // Supabase answers the same way for a wrong password and an unknown
+        // address, which is the right thing: it stops this page being used to
+        // find out who has an account.
+        setMessage(/invalid login credentials/i.test(error.message)
+          ? 'That email and password do not match. If you have not set a password yet, use “Forgot your password?”.'
+          : /email not confirmed/i.test(error.message)
+            ? 'This account has not been confirmed yet. Use “Forgot your password?” to finish setting it up.'
+            : error.message);
+        setBusy(false);
         return;
       }
       setMessage('Signed in. Taking you to the family area…');
       location.assign('/admin');
     } catch {
-      setMessage('Could not check the code. Check your connection and try again.');
-      setVerifying(false);
+      setMessage('Could not reach the site. Check your connection and try again.');
+      setBusy(false);
     }
   }
 
@@ -79,33 +45,36 @@ export default function LoginPage() {
     <main className="auth-page">
       <form className="admin-panel login-card" onSubmit={submit}>
         <span className="brand-mark">B</span>
-        <p className="kicker">Family access</p>
         <h1>Sign in to Becky</h1>
-        <p>We’ll email you a sign-in link and a one-time code. No password to remember.</p>
         <label>
           Email address
-          <input type="email" required value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" />
+          <input
+            type="email" name="email" required autoComplete="username" inputMode="email"
+            value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com"
+          />
         </label>
-        <button type="submit" disabled={cooldown > 0}>
-          {cooldown > 0 ? `Send again in ${cooldown}s` : sent ? 'Send a new email' : 'Send sign-in email'}
+        <label>
+          Password
+          <input
+            type="password" name="password" required autoComplete="current-password"
+            value={password} onChange={event => setPassword(event.target.value)}
+          />
+        </label>
+        <button type="submit" disabled={busy || !email.trim() || !password}>
+          {busy ? 'Signing in…' : 'Sign in'}
         </button>
         {message && <p role="status" aria-live="polite">{message}</p>}
+        <p className="login-aside">
+          <Link href="/reset-password">Forgot your password?</Link>
+        </p>
+        <p className="login-aside login-quiet">
+          Accounts are invite only. If you have not got one, ask a family member to send you a link.
+        </p>
       </form>
-      {sent && (
-        <form className="admin-panel login-card" onSubmit={verifyCode}>
-          <p className="kicker">Or use the code</p>
-          <label>
-            6-digit code from the email
-            <input
-              inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6}
-              value={code} onChange={event => setCode(event.target.value)} placeholder="123456"
-            />
-          </label>
-          <button type="submit" disabled={verifying || code.trim().length < 6}>
-            {verifying ? 'Checking…' : 'Sign in with code'}
-          </button>
-        </form>
-      )}
     </main>
   );
+}
+
+export default function LoginPage() {
+  return <Suspense fallback={null}><SignIn /></Suspense>;
 }

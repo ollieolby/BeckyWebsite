@@ -1,1 +1,8 @@
 .login-card button:disabled{background:#9b9186;cursor:not-allowed}.login-card [role="status"]{min-height:24px;color:var(--ink);font-size:13px;font-weight:700}
+.login-card h1{margin-bottom:6px}
+.login-card>p{color:#60706b;font-size:14px;line-height:1.55;margin:0 0 4px}
+.login-aside{margin-top:16px;font-size:13px;text-align:center}
+.login-aside a{color:var(--rust);font-weight:700;text-decoration:underline}
+.login-quiet{color:#8a938f;font-size:12px;line-height:1.5;margin-top:10px}
+.login-card input[type=password]{letter-spacing:.05em}
+.join-hint{margin:2px 0 4px;font-size:12px;color:#8a938f;line-height:1.5}

@@ -3,27 +3,33 @@
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { MIN_PASSWORD, passwordProblem } from '@/lib/password';
 
-type Stage = 'email' | 'code' | 'done';
+type Stage = 'details' | 'done';
 
 export default function JoinForm({ token }: { token: string }) {
   const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [stage, setStage] = useState<Stage>('email');
+  const [stage, setStage] = useState<Stage>('details');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
 
   async function accept(event: FormEvent) {
     event.preventDefault();
+    const problem = passwordProblem(password, email);
+    if (problem) return setMessage(problem);
+    if (password !== confirm) return setMessage('The two passwords are not the same.');
+
     setBusy(true);
-    setMessage('Checking your invite…');
+    setMessage('Setting up your account…');
     try {
-      // Creates the account if the invite is good. Open sign-up is off, so
-      // signInWithOtp below cannot create one on its own.
+      // Creates the account with this password. Open sign-up is off, so the
+      // browser cannot make one on its own; the invite is checked server-side.
       const response = await fetch('/api/join', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ token, email }),
+        body: JSON.stringify({ token, email, password }),
       });
       const result = await response.json();
       if (!response.ok) {
@@ -32,41 +38,20 @@ export default function JoinForm({ token }: { token: string }) {
         return;
       }
 
-      const { error } = await createSupabaseBrowserClient().auth.signInWithOtp({
-        email,
-        options: { shouldCreateUser: false, emailRedirectTo: `${location.origin}/auth/callback` },
-      });
+      // Straight in, no email to go and find.
+      const { error } = await createSupabaseBrowserClient().auth.signInWithPassword({ email, password });
       if (error) {
-        setMessage(error.message);
+        setMessage('Your account is ready, but signing in failed. Try the sign-in page.');
         setBusy(false);
         return;
       }
-      setStage('code');
-      setMessage('Account ready. We have emailed you a sign-in link and a code.');
+      setStage('done');
+      setMessage('Welcome aboard.');
+      location.assign('/');
     } catch {
       setMessage('Could not reach the site. Check your connection and try again.');
-    }
-    setBusy(false);
-  }
-
-  // Mail scanners often pre-open magic links, burning the one-time token
-  // before the reader clicks. The code from the same email always works.
-  async function verify(event: FormEvent) {
-    event.preventDefault();
-    if (!code.trim()) return;
-    setBusy(true);
-    setMessage('Checking the code…');
-    const { error } = await createSupabaseBrowserClient().auth.verifyOtp({
-      email, token: code.trim(), type: 'email',
-    });
-    if (error) {
-      setMessage('That code is wrong or has expired. Request a fresh email from the sign-in page.');
       setBusy(false);
-      return;
     }
-    setStage('done');
-    setMessage('Signed in.');
-    location.assign('/');
   }
 
   return (
@@ -82,26 +67,31 @@ export default function JoinForm({ token }: { token: string }) {
         </p>
 
         <ol className="join-steps">
-          <li className={stage === 'email' ? 'now' : 'done'}><span>1</span><div><strong>Enter your email</strong><small>The invite decides who can join — you cannot sign up without one.</small></div></li>
-          <li className={stage === 'code' ? 'now' : stage === 'done' ? 'done' : ''}><span>2</span><div><strong>Open the email</strong><small>Click the link, or type the code below if the link has been used up.</small></div></li>
-          <li className={stage === 'done' ? 'now' : ''}><span>3</span><div><strong>You are in</strong><small>Ask Becky anything, and add what you know from Add information.</small></div></li>
+          <li className={stage === 'details' ? 'now' : 'done'}><span>1</span><div><strong>Your email and a password</strong><small>The invite decides who can join — you cannot sign up without one.</small></div></li>
+          <li className={stage === 'done' ? 'now' : ''}><span>2</span><div><strong>You are in</strong><small>Ask Becky anything, and add what you know from Add information.</small></div></li>
         </ol>
 
-        {stage === 'email' && (
+        {stage === 'details' && (
           <form onSubmit={accept} className="join-form">
             <label htmlFor="join-email">Your email address</label>
-            <input id="join-email" type="email" required autoComplete="email" value={email}
-              onChange={event => setEmail(event.target.value)} placeholder="you@example.com" />
-            <button type="submit" disabled={busy || !email}>Accept invite</button>
-          </form>
-        )}
-
-        {stage === 'code' && (
-          <form onSubmit={verify} className="join-form">
-            <label htmlFor="join-code">Code from the email</label>
-            <input id="join-code" inputMode="numeric" autoComplete="one-time-code" value={code}
-              onChange={event => setCode(event.target.value)} placeholder="123456" />
-            <button type="submit" disabled={busy || !code.trim()}>Sign in</button>
+            <input
+              id="join-email" type="email" required autoComplete="username" inputMode="email"
+              value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com"
+            />
+            <label htmlFor="join-password">Choose a password</label>
+            <input
+              id="join-password" type="password" required autoComplete="new-password" minLength={MIN_PASSWORD}
+              value={password} onChange={event => setPassword(event.target.value)}
+            />
+            <label htmlFor="join-confirm">Type it again</label>
+            <input
+              id="join-confirm" type="password" required autoComplete="new-password"
+              value={confirm} onChange={event => setConfirm(event.target.value)}
+            />
+            <p className="join-hint">At least {MIN_PASSWORD} characters. A few unrelated words is plenty.</p>
+            <button type="submit" disabled={busy || !email || !password || !confirm}>
+              {busy ? 'Setting up…' : 'Create my account'}
+            </button>
           </form>
         )}
 

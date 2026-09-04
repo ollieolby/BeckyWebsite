@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { apiError } from '@/lib/api-error';
+import { passwordProblem } from '@/lib/password';
 
 export const runtime = 'nodejs';
 
 // Redeem an invite link. This is the only route in the site that can create an
-// account: open sign-up is switched off in Supabase Auth, so signInWithOtp
+// account: open sign-up is switched off in Supabase Auth, so the browser
 // cannot make one, and the invites table is invisible to unauthenticated
 // clients. Both the check and the account creation happen here, server-side.
 export async function POST(request: Request) {
@@ -13,8 +14,12 @@ export async function POST(request: Request) {
     const body = await request.json();
     const token = String(body.token ?? '').trim();
     const email = String(body.email ?? '').trim().toLowerCase();
+    const password = String(body.password ?? '');
     if (!token || !email) return NextResponse.json({ error: 'An invite and an email address are required.' }, { status: 400 });
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({ error: 'That does not look like an email address.' }, { status: 400 });
+    // Checked here as well as in the browser: the page can be bypassed.
+    const weak = passwordProblem(password, email);
+    if (weak) return NextResponse.json({ error: weak }, { status: 400 });
 
     // apiError echoes Error.message to the caller, and this route is public,
     // so a missing service key must not surface as a config detail.
@@ -49,6 +54,9 @@ export async function POST(request: Request) {
 
     const { data: created, error: createError } = await admin.auth.admin.createUser({
       email,
+      password,
+      // Confirmed on creation: the invite link was the proof of identity, so
+      // there is nothing for a confirmation email to add.
       email_confirm: true,
     });
     if (createError || !created?.user) {
