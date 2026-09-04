@@ -6,6 +6,9 @@
 .map-page-intro{max-width:1220px;width:100%;margin:0 auto;padding:clamp(30px,4vw,52px) clamp(18px,4vw,40px) clamp(16px,2vw,22px)}
 .map-page-intro .hero-mark{margin:0 0 14px}
 .map-page-intro h1{font:500 clamp(32px,4vw,48px)/1.06 Georgia,serif;letter-spacing:-.03em;color:var(--deep-water);margin:0}
+.map-track-link{display:inline-flex;flex-direction:column;gap:2px;margin-top:14px;padding:12px 18px;border-radius:10px;background:var(--deep-water);color:#fff8ec;font-size:15px;font-weight:700}
+.map-track-link small{font-weight:400;font-size:12px;color:rgba(255,248,236,.72)}
+.map-track-link:hover{background:var(--rust)}
 
 /* Not flex:1 - stretching this to fill the viewport left a few hundred pixels
    of dead space under both columns on a tall screen. */
@@ -39,6 +42,11 @@
      controls, the legend and the markers all escaped the map and landed on
      the page around it. */
   .river-map-canvas{position:relative;top:auto;height:min(52vh,380px);transform:none}
+  /* The header is sticky and translucent, so on a phone it sat over the top
+     of the map as soon as the page moved. There is nothing in it on a phone
+     but the brand and one button, so it can scroll away instead. */
+  .map-page .site-header{position:static}
+  .map-track-link{display:flex;width:100%}
   .river-map-list{max-height:none;overflow:visible}
 }
 

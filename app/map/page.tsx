@@ -23,6 +23,12 @@ export default function MapPage() {
       <div className="map-page-intro">
         <Anchor size={24} className="hero-mark" />
         <h1>The river map</h1>
+        {/* Not in the nav: the nav is hidden below 760px, which left the
+            tracker unreachable on the one device anybody would use it on. */}
+        <Link href="/tracker" className="map-track-link">
+          Track me
+          <small>Speed and time to the next lock, while you are under way</small>
+        </Link>
       </div>
 
       <RiverMap />
