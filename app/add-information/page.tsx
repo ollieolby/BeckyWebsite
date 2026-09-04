@@ -27,7 +27,7 @@ export default async function AddInformationPage() {
       <header>
         <Link className="brand" href="/"><span className="brand-mark">B</span><span>BECKY</span></Link>
         {user
-          ? <div><strong>{profile?.display_name || user.email}</strong><small>{profile?.role ?? 'viewer'}</small></div>
+          ? <Link href="/account" className="admin-whoami"><strong>{profile?.display_name || user.email}</strong><small>{profile?.role ?? 'viewer'} · your account</small></Link>
           : <Link className="ask-small" href="/login">Sign in <span>✦</span></Link>}
       </header>
       <section>

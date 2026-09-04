@@ -11,6 +11,7 @@ import './content-manager.css';
 import './chat.css';
 import './asset.css';
 import './notes.css';
+import './account.css';
 import './tracker.css';
 import './mobile.css';
 

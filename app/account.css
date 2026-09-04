@@ -1,0 +1,25 @@
+/* Your account: who you are, what you can do, and the way out. */
+.account-page{min-height:100dvh;background:var(--paper)}
+.account-page>section{max-width:640px;margin:0 auto;padding:clamp(30px,5vw,56px) clamp(18px,5vw,32px) 64px}
+.account-page h1{font:500 clamp(30px,4vw,44px)/1.06 Georgia,serif;letter-spacing:-.03em;color:var(--deep-water);margin:0 0 24px}
+
+.account-facts{margin:0 0 30px;padding:0;border-top:1px solid rgba(18,62,71,.14)}
+.account-facts>div{display:grid;grid-template-columns:minmax(110px,auto) 1fr;gap:6px 18px;padding:13px 0;border-bottom:1px solid rgba(18,62,71,.14)}
+.account-facts dt{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#8a938f}
+.account-facts dd{margin:0;font-size:15px;line-height:1.5;color:var(--ink)}
+
+.account-form{display:grid;gap:10px;margin-bottom:28px}
+.account-form label{display:grid;gap:5px;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#8a938f}
+.account-form input{border:1px solid #d7d0c3;border-radius:9px;background:var(--cream);color:var(--ink);padding:12px 14px;font-size:16px;text-transform:none;letter-spacing:normal}
+.account-form input:focus{outline:2px solid var(--rust);outline-offset:1px}
+.account-form button{justify-self:start;border:0;border-radius:9px;background:var(--rust);color:#fff;font-weight:700;padding:11px 20px;font-size:14px;cursor:pointer;min-height:44px}
+.account-form button:disabled{opacity:.5;cursor:default}
+.account-status{margin:0;font-size:13px;color:#4b5a56}
+
+.account-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-top:22px;border-top:1px solid rgba(18,62,71,.14)}
+.account-secondary{border:1px solid #d7d0c3;border-radius:9px;padding:11px 18px;font-size:14px;font-weight:700;color:var(--ink);min-height:44px;display:inline-flex;align-items:center}
+.account-secondary:hover{border-color:var(--rust);color:var(--rust)}
+.account-signout{margin-left:auto;border:1px solid rgba(179,38,30,.4);border-radius:9px;background:none;color:#a91f1f;padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer;min-height:44px}
+.account-signout:hover{background:#a91f1f;border-color:#a91f1f;color:#fff}
+.account-signout:disabled{opacity:.6;cursor:default}
+@media(max-width:600px){.account-actions{flex-direction:column;align-items:stretch}.account-signout{margin-left:0;text-align:center}.account-secondary{justify-content:center}}
