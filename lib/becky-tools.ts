@@ -1,8 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { THAMES_LOCKS } from './thames-locks';
-import { fetchRiverLevel, fetchRiverConditions } from './river-data';
-import { processDocumentBatch } from './ingest/process';
-import { figureTerms, rankFigures } from './figure-search';
+import { THAMES_LOCKS } from './thames-locks.ts';
+import { fetchRiverLevel, fetchRiverConditions } from './river-data.ts';
+import { processDocumentBatch } from './ingest/process.ts';
+import { figureTerms, rankFigures } from './figure-search.ts';
 
 // Where the boats live: on the Marlow–Cookham reach near Bourne End.
 // kmBelowMarlow is approximate — adjust it when the exact mooring is measured.
@@ -37,11 +37,23 @@ export const BECKY_TOOL_DEFINITIONS = [
   {
     type: 'function' as const,
     name: 'list_notes',
-    description: 'List the family shared-memory notes, including facts, decisions and conclusions saved manually or summarised from earlier chats. Use for questions about what the family has decided, learned or recorded.',
+    description: 'List the family shared-memory notes — facts, decisions and conclusions saved manually or summarised from earlier chats. Use for questions about what the family has decided, learned or recorded. Bodies come back shortened; use read_note for the whole of one.',
     strict: false,
     parameters: {
       type: 'object',
       properties: { asset_slug: { type: 'string', enum: ['becky','cormorant','drakar'], description: 'Only notes for this asset. Omit to include general and all asset notes.' } },
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'function' as const,
+    name: 'read_note',
+    description: 'Read one family note in full, by the id from list_notes. Use whenever a note\'s excerpt looks like it answers the question, so the answer comes from the whole note rather than the first few lines of it.',
+    strict: false,
+    parameters: {
+      type: 'object',
+      properties: { id: { type: 'string', description: 'The note id from list_notes.' } },
+      required: ['id'],
       additionalProperties: false,
     },
   },
@@ -222,6 +234,24 @@ export const BECKY_TOOL_DEFINITIONS = [
     },
   },
 ];
+
+
+// Listing tools return an excerpt, not the whole text.
+//
+// These read live from Postgres rather than the vector store, which is right —
+// a note is edited in the browser and must reach Ask Becky at once. But
+// file_search caps itself at a handful of results while a list tool returns
+// everything it finds, and every tool result is resent on each of the up to
+// six rounds a question can take. Full bodies here would grow without limit as
+// the family writes more; an excerpt plus a way to read one in full does not.
+const EXCERPT = 320;
+
+function excerpt(text: string | null | undefined) {
+  const value = (text ?? '').replace(/\s+/g, ' ').trim();
+  return value.length > EXCERPT
+    ? { text: value.slice(0, EXCERPT).trimEnd() + '…', truncated: true }
+    : { text: value, truncated: false };
+}
 
 function normalise(name: string) {
   return name.toLowerCase().replace(/[’']/g, '').replace(/\block\b/g, '').replace(/\s+/g, ' ').trim();
@@ -425,7 +455,12 @@ export async function runBeckyTool(name: string, args: Record<string, unknown>, 
     if (args.status === 'open' || args.status === 'solved') query = query.eq('status', args.status);
     const { data, error } = await query;
     if (error) throw new Error(error.message);
-    return JSON.stringify({ problems: data ?? [] });
+    const problems = (data ?? []).map(item => ({
+      ...item,
+      problem: excerpt(item.problem).text,
+      solution: excerpt(item.solution).text,
+    }));
+    return JSON.stringify({ problems });
   }
   if (name === 'log_problem') {
     const title = String(args.title ?? '').trim(), problem = String(args.problem ?? '').trim();
@@ -487,7 +522,7 @@ export async function runBeckyTool(name: string, args: Record<string, unknown>, 
   if (name === 'list_document_notes') {
     let query = supabase
       .from('notes')
-      .select('title,body,figure_slug,updated_at,documents(title)')
+      .select('id,title,body,figure_slug,updated_at,documents(title)')
       .not('document_id', 'is', null)
       .order('updated_at', { ascending: false })
       .limit(100);
@@ -500,8 +535,11 @@ export async function runBeckyTool(name: string, args: Record<string, unknown>, 
     const { data, error } = await query;
     if (error) throw new Error(error.message);
     return JSON.stringify({
-      notes: data ?? [],
-      about: 'Family corrections and clarifications, written after the manual. Where one contradicts the manual, the note is the more current.',
+      notes: (data ?? []).map(note => {
+        const short = excerpt(note.body);
+        return { ...note, body: short.text, truncated: short.truncated || undefined };
+      }),
+      about: 'Family corrections and clarifications, written after the manual. Where one contradicts the manual, the note is the more current. Long ones are cut short; read_note gives the whole of one.',
     });
   }
   if (name === 'find_figure') return JSON.stringify(await findFigures(supabase, args));
@@ -514,26 +552,63 @@ export async function runBeckyTool(name: string, args: Record<string, unknown>, 
     return JSON.stringify({ home_reach: 'Marlow Lock to Cookham Lock', conditions: wanted });
   }
   if (name === 'list_notes') {
-    let query = supabase.from('notes').select('title,body,source,updated_at,figure_slug,assets(slug,name),documents(title)').order('updated_at',{ascending:false}).limit(100);
-    if(typeof args.asset_slug==='string'&&args.asset_slug){
-      const {data:asset,error:assetError}=await supabase.from('assets').select('id').eq('slug',args.asset_slug).maybeSingle();
-      if(assetError)throw new Error(assetError.message);
-      if(!asset)return JSON.stringify({notes:[]});
-      query=query.eq('asset_id',asset.id);
+    let query = supabase.from('notes')
+      .select('id,title,body,source,updated_at,figure_slug,assets(slug,name),documents(title)')
+      .order('updated_at', { ascending: false }).limit(60);
+    if (typeof args.asset_slug === 'string' && args.asset_slug) {
+      const { data: asset, error: assetError } = await supabase.from('assets').select('id').eq('slug', args.asset_slug).maybeSingle();
+      if (assetError) throw new Error(assetError.message);
+      if (!asset) return JSON.stringify({ notes: [] });
+      query = query.eq('asset_id', asset.id);
     }
-    const {data,error}=await query;
-    if(error)throw new Error(error.message);
-    return JSON.stringify({notes:data??[]});
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+    const notes = (data ?? []).map(note => {
+      const short = excerpt(note.body);
+      const asset = Array.isArray(note.assets) ? note.assets[0] : note.assets;
+      const document = Array.isArray(note.documents) ? note.documents[0] : note.documents;
+      return {
+        id: note.id,
+        title: note.title,
+        excerpt: short.text,
+        truncated: short.truncated || undefined,
+        about: asset?.name ?? undefined,
+        on_document: document?.title ?? undefined,
+        on_figure: note.figure_slug ?? undefined,
+        source: note.source,
+        updated_at: note.updated_at,
+      };
+    });
+    return JSON.stringify({
+      notes,
+      how_to_read: 'Long notes are cut short here. When one looks like the answer, call read_note with its id for the whole thing rather than answering from the excerpt.',
+    });
+  }
+  if (name === 'read_note') {
+    const id = String(args.id ?? '').trim();
+    if (!id) return JSON.stringify({ error: 'A note id is required. Use list_notes first.' });
+    const { data, error } = await supabase.from('notes')
+      .select('title,body,source,updated_at,figure_slug,assets(name),documents(title)').eq('id', id).maybeSingle();
+    if (error) throw new Error(error.message);
+    return JSON.stringify(data ? { note: data } : { error: 'No note with that id.' });
   }
   if (name === 'list_places') {
-    let query = supabase.from('places').select('name,category,notes,latitude,longitude,google_maps_url').eq('is_published', true).order('name');
+    let query = supabase.from('places')
+      .select('name,category,notes,latitude,longitude,google_maps_url')
+      .eq('is_published', true).order('name').limit(80);
     if (typeof args.category === 'string' && args.category) query = query.eq('category', args.category);
     const { data, error } = await query;
     if (error) throw new Error(error.message);
-    return JSON.stringify({ places: data ?? [] });
+    // Coordinates stay exact — the planner does arithmetic on them. Only the
+    // free text is shortened.
+    const places = (data ?? []).map(place => {
+      const short = excerpt(place.notes);
+      return { ...place, notes: short.text, notes_truncated: short.truncated || undefined };
+    });
+    return JSON.stringify({ places });
   }
   if (name === 'list_guides') {
-    const { data, error } = await supabase.from('guides').select('title,slug,summary').eq('is_published', true).order('title');
+    const { data, error } = await supabase.from('guides').select('title,slug,summary').eq('is_published', true).order('title').limit(60);
     if (error) throw new Error(error.message);
     return JSON.stringify({ guides: data ?? [] });
   }
